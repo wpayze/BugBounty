@@ -4,21 +4,74 @@ const mongoose = require("mongoose");
 const User = require("../models/user");
 const Company = require("../models/company");
 
+const generateUserPayload = (user) => ({
+  userId: user._id,
+  email: user.email,
+  role: user.role,
+  companyId: user.company
+});
+
 const generateAccessToken = (user) => {
-  const accessToken = jwt.sign(
-    { userId: user._id, email: user.email },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
-  );
+  const payload = generateUserPayload(user);
+  const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
   return accessToken;
 };
 
 const generateRefreshToken = (user) => {
-  const refreshToken = jwt.sign(
-    { userId: user._id, email: user.email },
-    process.env.REFRESH_TOKEN_SECRET
-  );
+  const payload = generateUserPayload(user);
+  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
   return refreshToken;
+};
+
+exports.registerUserAndCreateCompany = async (req, res) => {
+  try {
+    const { name, email, password, companyName, profileImage } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already registered" });
+    }
+
+    const newCompany = await Company.create({
+      name: companyName,
+      description: "",
+      users: [],
+      profileImage: "",
+      location: "",
+      founded: new Date(),
+      industry: "",
+    });
+
+    const newUser = new User({
+      name,
+      email,
+      password,
+      company: newCompany._id,
+      role: "admin",
+      profileImage,
+    });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newUser.password, salt);
+    newUser.password = hashedPassword;
+
+    await newUser.save();
+
+    newCompany.users.push(newUser._id);
+    await newCompany.save();
+
+    res
+      .status(201)
+      .json({ message: "User registered and company created successfully" });
+  } catch (error) {
+    console.error("Error registering user and creating company:", error);
+    res.status(500).json({
+      message:
+        "An error occurred while registering the user and creating the company",
+    });
+  }
 };
 
 exports.registerUser = async (req, res) => {

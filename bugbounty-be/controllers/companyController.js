@@ -1,24 +1,33 @@
 const Company = require("../models/company");
+const User = require("../models/user");
 
-exports.getAllCompanies = async (req, res) => {
-  try {
-    const companies = await Company.find();
-    res.status(200).json(companies);
-  } catch (error) {
-    console.error("Error getting companies:", error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while getting companies" });
-  }
-};
+// exports.getAllCompanies = async (req, res) => {
+//   try {
+//     const companies = await Company.find();
+//     res.status(200).json(companies);
+//   } catch (error) {
+//     console.error("Error getting companies:", error);
+//     res
+//       .status(500)
+//       .json({ message: "An error occurred while getting companies" });
+//   }
+// };
 
 exports.getCompanyById = async (req, res) => {
   const { companyId } = req.params;
+
   try {
     const company = await Company.findById(companyId);
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
+
+    if (!company.users.includes(req.user.userId)) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to view this company" });
+    }
+
     res.status(200).json(company);
   } catch (error) {
     console.error("Error getting company:", error);
@@ -62,7 +71,12 @@ exports.updateCompanyById = async (req, res) => {
   const updateData = req.body;
 
   try {
-    if (req.user.role !== "admin") {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "admin") {
       return res
         .status(403)
         .json({ message: "Only administrators can update a company" });
@@ -72,7 +86,8 @@ exports.updateCompanyById = async (req, res) => {
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
-    if (!company.users.includes(req.user._id)) {
+
+    if (!company.users.includes(user._id)) {
       return res
         .status(403)
         .json({ message: "You are not authorized to update this company" });
@@ -95,18 +110,18 @@ exports.updateCompanyById = async (req, res) => {
   }
 };
 
-exports.deleteCompanyById = async (req, res) => {
-  const { companyId } = req.params;
-  try {
-    const deletedCompany = await Company.findByIdAndDelete(companyId);
-    if (!deletedCompany) {
-      return res.status(404).json({ message: "Company not found" });
-    }
-    res.status(200).json({ message: "Company deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting company:", error);
-    res
-      .status(500)
-      .json({ message: "An error occurred while deleting the company" });
-  }
-};
+// exports.deleteCompanyById = async (req, res) => {
+//   const { companyId } = req.params;
+//   try {
+//     const deletedCompany = await Company.findByIdAndDelete(companyId);
+//     if (!deletedCompany) {
+//       return res.status(404).json({ message: "Company not found" });
+//     }
+//     res.status(200).json({ message: "Company deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting company:", error);
+//     res
+//       .status(500)
+//       .json({ message: "An error occurred while deleting the company" });
+//   }
+// };

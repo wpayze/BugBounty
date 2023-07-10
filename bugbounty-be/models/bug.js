@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
-const Attachment = require('./attachment');
-
-autoIncrement.initialize(mongoose.connection);
 
 const bugSchema = new mongoose.Schema({
-  customId: { type: Number },
+  customId: { type: Number, unique: true },
   title: String,
   description: String,
   status: {
@@ -16,14 +12,15 @@ const bugSchema = new mongoose.Schema({
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
   assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  attachments: [Attachment.schema],
+  attachments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attachment' }],
 });
 
-bugSchema.plugin(autoIncrement.plugin, {
-  model: 'Bug',
-  field: 'customId',
-  startAt: 1,
-  incrementBy: 1,
+bugSchema.pre('save', async function (next) {
+  if (!this.customId) {
+    const lastBug = await Bug.findOne({}, {}, { sort: { customId: -1 } });
+    this.customId = lastBug ? lastBug.customId + 1 : 1;
+  }
+  next();
 });
 
 const Bug = mongoose.model('Bug', bugSchema);
