@@ -1,9 +1,11 @@
 require("dotenv").config();
-const path = require('path');
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const routes = require("./routes/routes");
+
+const fs = require("fs");
 
 const app = express();
 const port = 3000;
@@ -21,11 +23,12 @@ mongoose
   });
 
 const storage = multer.diskStorage({
-  destination(req, file, cb) {
+  destination: function (req, file, cb) {
     cb(null, path.join(__dirname, "uploads"));
   },
-  filename(req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
+  filename: function (req, file, cb) {
+    const uniqueFileName = generateUniqueFileName(file.originalname);
+    cb(null, uniqueFileName);
   },
 });
 
@@ -40,8 +43,9 @@ app.use(
     if (req.files) {
       req.body.attachments = req.files.map((file) => ({
         url: file.path,
-        name: file.originalname,
+        name: file.filename,
         type: file.mimetype,
+        fieldname: file.fieldname,
       }));
     }
     next();
@@ -53,6 +57,14 @@ app.use(
       .json({ message: "An error occurred while handling file upload" });
   }
 );
+
+function generateUniqueFileName(originalName) {
+  const timestamp = Date.now();
+  const uniqueId = Math.random().toString(36).substr(2, 9);
+  const extension = path.extname(originalName);
+  const uniqueFileName = `${timestamp}-${uniqueId}${extension}`;
+  return uniqueFileName;
+}
 
 app.use("/api", routes);
 
