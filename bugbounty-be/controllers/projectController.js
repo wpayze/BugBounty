@@ -1,21 +1,25 @@
-const Project = require("../models/project");
-const Bug = require("../models/bug");
-const Attachment = require("../models/attachment");
-
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
+const Project = require('../models/project');
+const Bug = require('../models/bug');
+const Attachment = require('../models/attachment');
+const User = require('../models/user');
 
 exports.getAllProjects = async (req, res) => {
   const { companyId } = req.user;
 
   try {
-    const projects = await Project.find({ company: companyId });
+    const companyUsers = await User.find({ company: companyId });
+    const userIds = companyUsers.map((user) => user._id);
+    const projects = await Project.find({
+      creator: { $in: userIds },
+    });
     res.status(200).json(projects);
   } catch (error) {
-    console.error("Error getting projects:", error);
+    console.error('Error getting projects:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while getting projects" });
+      .json({ message: 'An error occurred while getting projects' });
   }
 };
 
@@ -24,36 +28,40 @@ exports.getProjectById = async (req, res) => {
   const { companyId } = req.user;
 
   try {
-    const project = await Project.findOne({
-      _id: projectId,
-      company: companyId,
-    });
+    const project = await Project.findById(projectId).populate('creator');
     if (!project) {
-      return res.status(404).json({ message: "Project not found" });
+      return res.status(404).json({ message: 'Project not found' });
     }
+
+    if (project.creator.company.toString() !== companyId) {
+      return res.status(403).json({
+        message: 'Forbidden: Project does not belong to your company',
+      });
+    }
+
     res.status(200).json(project);
   } catch (error) {
-    console.error("Error getting project:", error);
+    console.error('Error getting project:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while getting the project" });
+      .json({ message: 'An error occurred while getting the project' });
   }
 };
 
 exports.createProject = async (req, res) => {
   const { name, description } = req.body;
   const { userId } = req.user;
-  let attachments = [];
+  const attachments = [];
 
   const coverImageFile = req.files.find(
-    (file) => file.fieldname === "coverImage"
+    (file) => file.fieldname === 'coverImage',
   );
   const coverImage = coverImageFile ? coverImageFile.path : null;
 
   if (req.body.attachments) {
-    for (let file of req.body.attachments) {
-      if (file.fieldname !== "coverImage") {
-        let attachment = new Attachment(file);
+    for (const file of req.body.attachments) {
+      if (file.fieldname !== 'coverImage') {
+        const attachment = new Attachment(file);
         await attachment.save();
         attachments.push(attachment._id);
       }
@@ -70,10 +78,10 @@ exports.createProject = async (req, res) => {
     });
     res.status(201).json(newProject);
   } catch (error) {
-    console.error("Error creating project:", error);
+    console.error('Error creating project:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while creating the project" });
+      .json({ message: 'An error occurred while creating the project' });
   }
 };
 
@@ -82,76 +90,84 @@ exports.updateProjectById = async (req, res) => {
   const updateData = { ...req.body };
   const { companyId } = req.user;
   const newCoverImage = req.files.find(
-    (file) => file.fieldname === "coverImage"
+    (file) => file.fieldname === 'coverImage',
   );
-  const newAttachments = req.files.filter(
-    (file) => file.fieldname !== "coverImage"
-  );
+  const newAttachments = req.body.attachments || [];
 
-  if (newCoverImage) {
-    updateData.coverImage = newCoverImage.path;
+  if (typeof updateData.currentAttachments === 'string') {
+    try {
+      updateData.currentAttachments = updateData.currentAttachments ? JSON.parse(updateData.currentAttachments) : [];
+    } catch (error) {
+      console.error('Error parsing attachments string:', error);
+      return res.status(400).json({ message: 'Invalid attachments data' });
+    }
   }
 
   try {
-    // Buscamos el proyecto a actualizar
-    const project = await Project.findOne({
-      _id: projectId,
-      company: companyId,
-    });
+    const project = await Project.findById(projectId).populate('creator');
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
+    if (newCoverImage) {
+      if (project.coverImage) {
+        fs.unlink(project.coverImage, (err) => {
+          if (err) {
+            console.error('Error deleting old cover image:', err);
+          }
+        });
+      }
+
+      updateData.coverImage = newCoverImage.path;
     }
 
-    // Encontramos y eliminamos los attachments antiguos que no se enviaron en el update
-    const oldAttachmentIds = project.attachments;
-    const newAttachmentIds = updateData.attachments || [];
-    const attachmentsToDelete = oldAttachmentIds.filter(
-      (id) => !newAttachmentIds.includes(id)
-    );
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
 
-    for (let attachmentId of attachmentsToDelete) {
+    if (project.creator.company.toString() !== companyId) {
+      return res.status(403).json({
+        message: 'Forbidden: Project does not belong to the same company',
+      });
+    }
+
+    const oldAttachmentIds = project.attachments;
+    const updatedAttachmentIds = updateData.currentAttachments || [];
+    const attachmentsToDelete = oldAttachmentIds.filter(
+      (id) => !updatedAttachmentIds.includes(id.toString()),
+    );
+    for (const attachmentId of attachmentsToDelete) {
       const attachment = await Attachment.findById(attachmentId);
       if (attachment) {
-        // Borramos el archivo del sistema de archivos
-        fs.unlink(path.join(__dirname, attachment.url), (err) => {
-          if (err) console.error("Error deleting file:", err);
+        fs.unlink(attachment.url, (err) => {
+          if (err) console.error('Error deleting file:', err);
         });
 
-        // Borramos el attachment de la base de datos
         await Attachment.findByIdAndRemove(attachmentId);
       }
     }
 
-    // Agregamos los nuevos attachments
     if (newAttachments.length) {
-      const newAttachmentsData = newAttachments.map((file) => ({
-        url: file.path,
-        name: file.originalname,
-        type: file.mimetype,
-      }));
-      const createdAttachments = await Attachment.insertMany(
-        newAttachmentsData
-      );
-      updateData.attachments = [
-        ...newAttachmentIds,
-        ...createdAttachments.map((attachment) => attachment._id),
-      ];
+      for (const file of newAttachments) {
+        if (file.fieldname !== 'coverImage') {
+          const attachment = new Attachment(file);
+          await attachment.save();
+          updatedAttachmentIds.push(attachment._id);
+        }
+      }
     }
 
-    // Actualizamos el proyecto
+    updateData.attachments = updatedAttachmentIds;
+
     const updatedProject = await Project.findByIdAndUpdate(
       projectId,
       updateData,
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json(updatedProject);
   } catch (error) {
-    console.error("Error updating project:", error);
+    console.error('Error updating project:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while updating the project" });
+      .json({ message: 'An error occurred while updating the project' });
   }
 };
 
@@ -165,16 +181,16 @@ exports.deleteProjectById = async (req, res) => {
       company: companyId,
     });
     if (!deletedProject) {
-      return res.status(404).json({ message: "Project not found" });
+      return res.status(404).json({ message: 'Project not found' });
     }
 
     await Bug.deleteMany({ project: projectId });
 
-    res.status(200).json({ message: "Project deleted successfully" });
+    res.status(200).json({ message: 'Project deleted successfully' });
   } catch (error) {
-    console.error("Error deleting project:", error);
+    console.error('Error deleting project:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while deleting the project" });
+      .json({ message: 'An error occurred while deleting the project' });
   }
 };

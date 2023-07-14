@@ -1,5 +1,5 @@
-const Company = require("../models/company");
-const User = require("../models/user");
+const Company = require('../models/company');
+const User = require('../models/user');
 
 // exports.getAllCompanies = async (req, res) => {
 //   try {
@@ -19,21 +19,21 @@ exports.getCompanyById = async (req, res) => {
   try {
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+      return res.status(404).json({ message: 'Company not found' });
     }
 
     if (!company.users.includes(req.user.userId)) {
       return res
         .status(403)
-        .json({ message: "You are not authorized to view this company" });
+        .json({ message: 'You are not authorized to view this company' });
     }
 
     res.status(200).json(company);
   } catch (error) {
-    console.error("Error getting company:", error);
+    console.error('Error getting company:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while getting the company" });
+      .json({ message: 'An error occurred while getting the company' });
   }
 };
 
@@ -59,10 +59,10 @@ exports.createCompany = async (req, res) => {
     });
     res.status(201).json(newCompany);
   } catch (error) {
-    console.error("Error creating company:", error);
+    console.error('Error creating company:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while creating the company" });
+      .json({ message: 'An error occurred while creating the company' });
   }
 };
 
@@ -73,40 +73,40 @@ exports.updateCompanyById = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.role !== "admin") {
+    if (user.role !== 'admin') {
       return res
         .status(403)
-        .json({ message: "Only administrators can update a company" });
+        .json({ message: 'Only administrators can update a company' });
     }
 
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ message: "Company not found" });
+      return res.status(404).json({ message: 'Company not found' });
     }
 
     if (!company.users.includes(user._id)) {
       return res
         .status(403)
-        .json({ message: "You are not authorized to update this company" });
+        .json({ message: 'You are not authorized to update this company' });
     }
 
     const updatedCompany = await Company.findByIdAndUpdate(
       companyId,
       updateData,
-      { new: true }
+      { new: true },
     );
     if (!updatedCompany) {
-      return res.status(404).json({ message: "Company not found" });
+      return res.status(404).json({ message: 'Company not found' });
     }
     res.status(200).json(updatedCompany);
   } catch (error) {
-    console.error("Error updating company:", error);
+    console.error('Error updating company:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while updating the company" });
+      .json({ message: 'An error occurred while updating the company' });
   }
 };
 

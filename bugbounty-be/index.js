@@ -1,11 +1,10 @@
-require("dotenv").config();
-const path = require("path");
-const express = require("express");
-const mongoose = require("mongoose");
-const multer = require("multer");
-const routes = require("./routes/routes");
-
-const fs = require("fs");
+require('dotenv').config();
+const path = require('path');
+const express = require('express');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const fs = require('fs');
+const routes = require('./routes/routes');
 
 const app = express();
 const port = 3000;
@@ -16,17 +15,17 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Conexión exitosa a la base de datos");
+    console.log('Conexión exitosa a la base de datos');
   })
   .catch((error) => {
-    console.error("Error al conectar a la base de datos:", error);
+    console.error('Error al conectar a la base de datos:', error);
   });
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "uploads"));
+  destination(req, file, cb) {
+    cb(null, path.join(__dirname, 'uploads'));
   },
-  filename: function (req, file, cb) {
+  filename(req, file, cb) {
     const uniqueFileName = generateUniqueFileName(file.originalname);
     cb(null, uniqueFileName);
   },
@@ -37,7 +36,7 @@ const upload = multer({ storage });
 app.use(express.json());
 
 app.use(
-  "/api",
+  '/api',
   upload.any(),
   (req, res, next) => {
     if (req.files) {
@@ -51,11 +50,11 @@ app.use(
     next();
   },
   (error, req, res, next) => {
-    console.error("Error handling file upload:", error);
+    console.error('Error handling file upload:', error);
     res
       .status(500)
-      .json({ message: "An error occurred while handling file upload" });
-  }
+      .json({ message: 'An error occurred while handling file upload' });
+  },
 );
 
 function generateUniqueFileName(originalName) {
@@ -66,7 +65,7 @@ function generateUniqueFileName(originalName) {
   return uniqueFileName;
 }
 
-app.use("/api", routes);
+app.use('/api', routes);
 
 app.listen(port, () => {
   console.log(`Servidor iniciado en el puerto ${port}`);
