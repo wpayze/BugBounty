@@ -1,7 +1,7 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const routes = require("./routes/routes");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const routes = require('./routes/routes');
 
 const app = express();
 const port = 3000;
@@ -12,15 +12,15 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("Conexión exitosa a la base de datos");
+    console.log('Conexión exitosa a la base de datos');
   })
   .catch((error) => {
-    console.error("Error al conectar a la base de datos:", error);
+    console.error('Error al conectar a la base de datos:', error);
   });
 
 app.use(express.json());
 
-app.use("/api", routes);
+app.use('/api', routes);
 
 app.listen(port, () => {
   console.log(`Servidor iniciado en el puerto ${port}`);

@@ -15,14 +15,14 @@ const bugSchema = new mongoose.Schema({
   attachments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attachment' }],
 });
 
-bugSchema.pre('save', async function (next) {
+const Bug = mongoose.model('Bug', bugSchema);
+
+bugSchema.pre('save', async function generateCustomId(next) {
   if (!this.customId) {
     const lastBug = await Bug.findOne({}, {}, { sort: { customId: -1 } });
     this.customId = lastBug ? lastBug.customId + 1 : 1;
   }
   next();
 });
-
-const Bug = mongoose.model('Bug', bugSchema);
 
 module.exports = Bug;
