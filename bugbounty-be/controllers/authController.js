@@ -28,7 +28,7 @@ const generateRefreshToken = (user) => {
 exports.registerUserAndCreateCompany = async (req, res) => {
   try {
     const {
-      name, email, password, companyName, profileImage,
+      name, email, password, companyName,
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -52,7 +52,6 @@ exports.registerUserAndCreateCompany = async (req, res) => {
       password,
       company: newCompany._id,
       role: 'admin',
-      profileImage,
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -79,7 +78,7 @@ exports.registerUserAndCreateCompany = async (req, res) => {
 exports.registerUser = async (req, res) => {
   try {
     const {
-      name, email, password, company, role, profileImage,
+      name, email, password, company, role,
     } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -92,7 +91,6 @@ exports.registerUser = async (req, res) => {
       email,
       password,
       role,
-      profileImage,
     });
 
     const isValidCompanyId = mongoose.Types.ObjectId.isValid(company);

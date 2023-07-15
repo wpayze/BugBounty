@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
 const companySchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    default: 'Your Company',
+  },
   description: String,
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   profileImage: String,

@@ -47,8 +47,7 @@ exports.createBug = async (req, res) => {
 
   try {
     const bodyAttachments = await uploadFiles(req, res);
-    const user = User.findById(userId);
-
+    const user = await User.findById(userId);
     const {
       title, description, project, assignees,
     } = req.body;
