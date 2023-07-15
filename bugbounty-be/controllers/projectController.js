@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const Project = require('../models/project');
 const Bug = require('../models/bug');
 const Attachment = require('../models/attachment');

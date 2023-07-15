@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.get('/', authenticateJWT, bugController.getAllBugs);
 router.get('/:bugId', authenticateJWT, bugController.getBugById);
+router.get('/project/:projectId', authenticateJWT, bugController.getBugsByProjectId);
 router.post('/', authenticateJWT, bugController.createBug);
-// router.put('/:projectId', authenticateJWT, projectController.updateProjectById);
+router.put('/:bugId', authenticateJWT, bugController.updateBugById);
 // router.delete('/:projectId', authenticateJWT, projectController.deleteProjectById);
 
 module.exports = router;

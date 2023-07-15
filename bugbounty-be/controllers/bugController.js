@@ -1,9 +1,22 @@
+const fs = require('fs');
 const Bug = require('../models/bug');
 const User = require('../models/user');
 const ChangeEvent = require('../models/changeEvent');
 const Attachment = require('../models/attachment');
 
 const uploadFiles = require('../helpers/fileUploader');
+
+function parseJSONField(field, errorMessage) {
+  if (typeof field === 'string') {
+    try {
+      return field ? JSON.parse(field) : [];
+    } catch (error) {
+      console.error(errorMessage, error);
+      throw new Error('Invalid JSON format');
+    }
+  }
+  return field;
+}
 
 exports.getAllBugs = async (req, res, next) => {
   try {
@@ -42,15 +55,42 @@ exports.getBugById = async (req, res) => {
   }
 };
 
+exports.getBugsByProjectId = async (req, res) => {
+  const { projectId } = req.params;
+
+  try {
+    const bugs = await Bug.find({ project: projectId });
+
+    if (!bugs.length) {
+      return res
+        .status(404)
+        .json({ message: 'No bugs found for this project' });
+    }
+
+    res.status(200).json(bugs);
+  } catch (error) {
+    console.error('Error getting bugs:', error);
+    res
+      .status(500)
+      .json({ message: 'An error occurred while getting the bugs' });
+  }
+};
+
 exports.createBug = async (req, res) => {
   const { userId } = req.user;
 
   try {
     const bodyAttachments = await uploadFiles(req, res);
     const user = await User.findById(userId);
-    const {
+    let {
       title, description, project, assignees,
     } = req.body;
+
+    try {
+      assignees = parseJSONField(assignees, 'Error parsing assignees string:');
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
 
     const attachmentPromises = bodyAttachments.map((attachmentData) => new Attachment(attachmentData).save());
     const attachments = await Promise.all(attachmentPromises);
@@ -80,5 +120,95 @@ exports.createBug = async (req, res) => {
     res
       .status(500)
       .json({ message: 'An error occurred while creating the bug' });
+  }
+};
+
+exports.updateBugById = async (req, res) => {
+  const { bugId } = req.params;
+  const { userId, companyId } = req.user;
+
+  try {
+    const bug = await Bug.findById(bugId).populate('creator');
+    if (!bug) {
+      return res.status(404).json({ message: 'Bug not found' });
+    }
+
+    if (bug.creator.company.toString() !== companyId) {
+      return res
+        .status(403)
+        .json({ message: 'Forbidden: Bug does not belong to your company' });
+    }
+
+    const newAttachmentsData = await uploadFiles(req, res);
+    const newAttachmentsPromises = newAttachmentsData.map((attachmentData) => new Attachment(attachmentData).save());
+    const newAttachments = await Promise.all(newAttachmentsPromises);
+
+    let {
+      title,
+      description,
+      status,
+      assignees,
+      attachments: updatedAttachmentIds,
+    } = req.body;
+
+    try {
+      updatedAttachmentIds = parseJSONField(
+        updatedAttachmentIds,
+        'Error parsing attachments string:',
+      );
+      assignees = parseJSONField(assignees, 'Error parsing assignees string:');
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    const oldAttachmentIds = bug.attachments;
+    const attachmentsToDelete = oldAttachmentIds.filter(
+      (id) => !updatedAttachmentIds.includes(id.toString()),
+    );
+
+    for (const attachmentId of attachmentsToDelete) {
+      const attachment = await Attachment.findById(attachmentId);
+      if (attachment) {
+        fs.unlink(attachment.url, (err) => {
+          if (err) console.error('Error deleting file:', err);
+        });
+
+        await Attachment.findByIdAndRemove(attachmentId);
+      }
+    }
+
+    const validAttachments = [
+      ...newAttachments.map((attachment) => attachment._id),
+      ...updatedAttachmentIds,
+    ];
+
+    const updatedBug = await Bug.findByIdAndUpdate(
+      bugId,
+      {
+        title,
+        description,
+        status,
+        assignees,
+        attachments: validAttachments,
+      },
+      { new: true },
+    );
+
+    const user = await User.findById(userId);
+
+    ChangeEvent.create({
+      type: 'modification',
+      user: userId,
+      bug: updatedBug._id,
+      timestamp: new Date(),
+      details: `Bug "${title}" updated by ${user.name} (${user.email})`,
+    });
+
+    res.status(200).json(updatedBug);
+  } catch (error) {
+    console.error('Error updating bug:', error);
+    res
+      .status(500)
+      .json({ message: 'An error occurred while updating the bug' });
   }
 };
