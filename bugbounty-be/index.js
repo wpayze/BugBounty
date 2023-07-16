@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes/routes');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -19,7 +20,7 @@ mongoose
   });
 
 app.use(express.json());
-
+app.use('/api/public', express.static(path.join(__dirname, 'uploads')))
 app.use('/api', routes);
 
 app.listen(port, () => {

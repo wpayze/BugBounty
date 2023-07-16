@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+
 const Bug = require('../models/bug');
 const User = require('../models/user');
 const ChangeEvent = require('../models/changeEvent');
@@ -169,7 +171,7 @@ exports.updateBugById = async (req, res) => {
     for (const attachmentId of attachmentsToDelete) {
       const attachment = await Attachment.findById(attachmentId);
       if (attachment) {
-        fs.unlink(attachment.url, (err) => {
+        fs.unlink(path.join(__dirname, '../uploads', attachment.url), (err) => {
           if (err) console.error('Error deleting file:', err);
         });
 

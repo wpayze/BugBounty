@@ -21,22 +21,23 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage }).any();
 
-const uploadFiles = (req, res) => new Promise((resolve, reject) => {
-  upload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      reject(err);
-    } else if (err) {
-      reject(err);
-    } else {
-      const attachments = req.files.map((file) => ({
-        url: file.path,
-        name: file.filename,
-        type: file.mimetype,
-        fieldname: file.fieldname,
-      }));
-      resolve(attachments);
-    }
+const uploadFiles = (req, res) =>
+  new Promise((resolve, reject) => {
+    upload(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        reject(err);
+      } else if (err) {
+        reject(err);
+      } else {
+        const attachments = req.files.map((file) => ({
+          url: file.filename,
+          name: file.filename,
+          type: file.mimetype,
+          fieldname: file.fieldname,
+        }));
+        resolve(attachments);
+      }
+    });
   });
-});
 
 module.exports = uploadFiles;

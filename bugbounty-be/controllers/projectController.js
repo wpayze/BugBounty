@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+
 const Project = require('../models/project');
 const Bug = require('../models/bug');
 const Attachment = require('../models/attachment');
@@ -97,6 +99,10 @@ exports.updateProjectById = async (req, res) => {
   try {
     const project = await Project.findById(projectId).populate('creator');
 
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const bodyAttachments = await uploadFiles(req, res);
     const updateData = { ...req.body };
 
@@ -119,7 +125,7 @@ exports.updateProjectById = async (req, res) => {
 
     if (newCoverImage) {
       if (project.coverImage) {
-        fs.unlink(project.coverImage, (err) => {
+        fs.unlink(path.join(__dirname, '../uploads', project.coverImage), (err) => {
           if (err) {
             console.error('Error deleting old cover image:', err);
           }
@@ -129,9 +135,7 @@ exports.updateProjectById = async (req, res) => {
       updateData.coverImage = newCoverImage.url;
     }
 
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
+    
 
     if (project.creator.company.toString() !== companyId) {
       return res.status(403).json({
@@ -147,7 +151,7 @@ exports.updateProjectById = async (req, res) => {
     for (const attachmentId of attachmentsToDelete) {
       const attachment = await Attachment.findById(attachmentId);
       if (attachment) {
-        fs.unlink(attachment.url, (err) => {
+        fs.unlink(path.join(__dirname, '../uploads', attachment.url), (err) => {
           if (err) console.error('Error deleting file:', err);
         });
 
@@ -204,7 +208,7 @@ exports.deleteProjectById = async (req, res) => {
       for (const attachmentId of bug.attachments) {
         const attachment = await Attachment.findById(attachmentId);
         if (attachment) {
-          fs.unlink(attachment.url, (err) => {
+          fs.unlink(path.join(__dirname, '../uploads', attachment.url), (err) => {
             if (err) console.error('Error deleting file:', err);
           });
           await Attachment.findByIdAndRemove(attachmentId);
