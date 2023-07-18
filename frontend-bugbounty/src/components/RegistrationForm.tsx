@@ -1,35 +1,65 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 
 interface FormData {
   name: string;
   email: string;
+  companyName: string;
   password: string;
   repeatPassword: string;
-  companyName: string;
 }
 
-const RegisterForm: React.FC = () => {
+const RegisterComponent: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
+    companyName: "",
     password: "",
     repeatPassword: "",
-    companyName: "",
   });
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
+    setErrors((prevState) => ({ ...prevState, [name]: "" }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // Do something with formData, e.g., send it to the server
-    console.log(formData);
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors: Partial<FormData> = {};
+
+    if (!formData.name) {
+      validationErrors.name = "Please enter your full name";
+    }
+
+    if (!formData.email) {
+      validationErrors.email = "Please enter your email address";
+    }
+
+    if (!formData.companyName) {
+      validationErrors.companyName = "Please enter the name of your company";
+    }
+
+    if (!formData.password) {
+      validationErrors.password = "Please enter a password";
+    }
+
+    if (!formData.repeatPassword) {
+      validationErrors.repeatPassword = "Please repeat your password";
+    }
+
+    if (formData.password !== formData.repeatPassword) {
+      validationErrors.repeatPassword = "Passwords do not match";
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+    } else {
+      // Handle form submission
+      console.log(formData);
+    }
   };
 
   return (
@@ -38,57 +68,79 @@ const RegisterForm: React.FC = () => {
         <div className="col-sm-6 mb-3 mb-sm-0">
           <input
             type="text"
-            className="form-control form-control-user"
             placeholder="Full Name"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
+            className={`form-control form-control-user ${
+              errors.name ? "is-invalid" : ""
+            }`}
           />
+          {errors.name && (
+            <small className="text-danger">{errors.name}</small>
+          )}
         </div>
         <div className="col-sm-6">
           <input
             type="email"
-            className="form-control form-control-user"
-            id="exampleInputEmail"
+            className={`form-control form-control-user ${
+              errors.email ? "is-invalid" : ""
+            }`}
             placeholder="Email Address"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
           />
+          {errors.email && (
+            <small className="text-danger">{errors.email}</small>
+          )}
         </div>
       </div>
       <div className="form-group">
         <input
           type="text"
-          className="form-control form-control-user"
+          className={`form-control form-control-user ${
+            errors.companyName ? "is-invalid" : ""
+          }`}
           placeholder="Name of your Company"
           name="companyName"
           value={formData.companyName}
           onChange={handleInputChange}
         />
+        {errors.companyName && (
+          <small className="text-danger">{errors.companyName}</small>
+        )}
       </div>
       <div className="form-group row">
         <div className="col-sm-6 mb-3 mb-sm-0">
           <input
             type="password"
-            className="form-control form-control-user"
-            id="exampleInputPassword"
+            className={`form-control form-control-user ${
+              errors.password ? "is-invalid" : ""
+            }`}
             placeholder="Password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
           />
+          {errors.password && (
+            <small className="text-danger">{errors.password}</small>
+          )}
         </div>
         <div className="col-sm-6">
           <input
             type="password"
-            className="form-control form-control-user"
-            id="exampleRepeatPassword"
+            className={`form-control form-control-user ${
+              errors.repeatPassword ? "is-invalid" : ""
+            }`}
             placeholder="Repeat Password"
             name="repeatPassword"
             value={formData.repeatPassword}
             onChange={handleInputChange}
           />
+          {errors.repeatPassword && (
+            <small className="text-danger">{errors.repeatPassword}</small>
+          )}
         </div>
       </div>
       <button
@@ -140,4 +192,4 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default RegisterForm;
+export default RegisterComponent;

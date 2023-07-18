@@ -1,21 +1,21 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import RegistrationForm from "@/components/RegistrationForm";
+import LoginForm from "@/components/LoginForm";
 import "../../../public/css/theme.min.css";
 import "../../../public/css/icons.min.css";
-import "./registerStyles.css";
+import "./loginStyles.css";
 
-const RegisterPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   return (
-    <div id="register-bg">
+    <div id="login-bg">
       <div className="container">
         <div className="row">
           <div className="col-12">
             <div className="d-flex align-items-center min-vh-100">
               <div className="w-100 d-block bg-white shadow-lg rounded my-5">
                 <div className="row">
-                  <div className="col-lg-5 d-none d-lg-block bg-register rounded-left"></div>
+                  <div className="col-lg-5 d-none d-lg-block bg-login rounded-left"></div>
                   <div className="col-lg-7">
                     <div className="p-5">
                       <div className="text-center mb-5">
@@ -32,25 +32,32 @@ const RegisterPage: React.FC = () => {
                           <b>BUG BOUNTY</b>
                         </Link>
                       </div>
-                      <h1 className="h5 mb-1">Create an Account!</h1>
+                      <h1 className="h5 mb-1">Welcome Back!</h1>
                       <p className="text-muted mb-4">
-                        Ready to level up your bug tracking? Sign up for Bug
-                        Bounty today and become part of a community dedicated to
-                        efficient and effective bug management. Take your first
-                        step towards a bug-free future now.
+                        Ready to squash some bugs? Log in to your account now to
+                        continue tracking and managing bugs like a pro. Don't
+                        miss out on making your projects the best they can be.
                       </p>
 
-                      <RegistrationForm />
+                      <LoginForm />
 
                       <div className="row mt-4">
                         <div className="col-12 text-center">
-                          <p className="text-muted mb-0">
-                            Already have account?{" "}
+                          <p className="text-muted mb-2">
                             <Link
-                              href="/login"
+                              href="/"
                               className="text-muted font-weight-medium ml-1"
                             >
-                              <b>Sign In</b>
+                              Forgot your password?
+                            </Link>
+                          </p>
+                          <p className="text-muted mb-0">
+                            Don't have an account?{" "}
+                            <Link
+                              href="/register"
+                              className="text-muted font-weight-medium ml-1"
+                            >
+                              <b>Sign Up</b>
                             </Link>
                           </p>
                         </div>
@@ -67,4 +74,4 @@ const RegisterPage: React.FC = () => {
   );
 };
 
-export default RegisterPage;
+export default LoginPage;
