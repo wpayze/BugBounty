@@ -79,7 +79,7 @@ const LoginForm: React.FC = () => {
         <ul className="list-inline mt-3 mb-0">
           <li className="list-inline-item">
             <a
-              href="javascript:void(0);"
+              href="#"
               className="social-list-item border-primary text-primary"
             >
               <i className="mdi mdi-facebook"></i>
@@ -87,7 +87,7 @@ const LoginForm: React.FC = () => {
           </li>
           <li className="list-inline-item">
             <a
-              href="javascript:void(0);"
+              href="#"
               className="social-list-item border-danger text-danger"
             >
               <i className="mdi mdi-google"></i>
@@ -95,7 +95,7 @@ const LoginForm: React.FC = () => {
           </li>
           <li className="list-inline-item">
             <a
-              href="javascript:void(0);"
+              href="#"
               className="social-list-item border-info text-info"
             >
               <i className="mdi mdi-twitter"></i>
@@ -103,7 +103,7 @@ const LoginForm: React.FC = () => {
           </li>
           <li className="list-inline-item">
             <a
-              href="javascript:void(0);"
+              href="#"
               className="social-list-item border-secondary text-secondary"
             >
               <i className="mdi mdi-github-circle"></i>

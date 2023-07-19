@@ -16,6 +16,7 @@ export interface Bug {
   title: string;
   description: string;
   status: "open" | "in progress" | "closed";
+  severity: "low" | "medium" | "high" | "critical";
   creator: string | User;
   project: string | Project;
   assignees: Array<string | User>;

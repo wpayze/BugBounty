@@ -1,11 +1,9 @@
 "use client";
 import React, { ChangeEvent, FormEvent, useState } from "react";
+import { RegisterRequest } from "@/shared/requestTypes";
+import authService from "@/services/authService";
 
-interface FormData {
-  name: string;
-  email: string;
-  companyName: string;
-  password: string;
+interface FormData extends RegisterRequest {
   repeatPassword: string;
 }
 
@@ -18,6 +16,8 @@ const RegisterComponent: React.FC = () => {
     repeatPassword: "",
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [formError, setFormError] = useState<boolean>(false);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,7 +25,7 @@ const RegisterComponent: React.FC = () => {
     setErrors((prevState) => ({ ...prevState, [name]: "" }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     const validationErrors: Partial<FormData> = {};
@@ -42,6 +42,11 @@ const RegisterComponent: React.FC = () => {
       validationErrors.companyName = "Please enter the name of your company";
     }
 
+    const minPasswordLength = 6;
+    if (formData.password.length < minPasswordLength) {
+      validationErrors.password = `Password must be at least ${minPasswordLength} characters long`;
+    }
+
     if (!formData.password) {
       validationErrors.password = "Please enter a password";
     }
@@ -54,16 +59,37 @@ const RegisterComponent: React.FC = () => {
       validationErrors.repeatPassword = "Passwords do not match";
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      validationErrors.email = "Invalid email format";
+    }
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      // Handle form submission
-      console.log(formData);
+      setIsLoading(true);
+
+      try {
+        const registerRequest: RegisterRequest = formData;
+        await authService.register(registerRequest);
+      } catch (error) {
+        setIsLoading(false);
+        setFormError(true);
+        console.error(error);
+      }
     }
   };
 
   return (
     <form className="user" onSubmit={handleSubmit}>
+      {formError && (
+        <div className="alert alert-danger" role="alert">
+          We apologize, but we encountered an error while creating your account.
+          Please try again later or contact our support team for further
+          assistance. Thank you for your understanding.
+        </div>
+      )}
+
       <div className="form-group row">
         <div className="col-sm-6 mb-3 mb-sm-0">
           <input
@@ -76,9 +102,7 @@ const RegisterComponent: React.FC = () => {
               errors.name ? "is-invalid" : ""
             }`}
           />
-          {errors.name && (
-            <small className="text-danger">{errors.name}</small>
-          )}
+          {errors.name && <small className="text-danger">{errors.name}</small>}
         </div>
         <div className="col-sm-6">
           <input
@@ -147,7 +171,13 @@ const RegisterComponent: React.FC = () => {
         type="submit"
         className="btn btn-success btn-block waves-effect waves-light"
       >
-        Register Account
+        {isLoading ? (
+          <div className="spinner-border text-light m-2" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
+        ) : (
+          "Register Account"
+        )}
       </button>
 
       <div className="text-center mt-4">
@@ -156,31 +186,25 @@ const RegisterComponent: React.FC = () => {
         <ul className="list-inline mt-3 mb-0">
           <li className="list-inline-item">
             <a
-              href="javascript: void(0);"
+              href="#"
               className="social-list-item border-primary text-primary"
             >
               <i className="mdi mdi-facebook"></i>
             </a>
           </li>
           <li className="list-inline-item">
-            <a
-              href="javascript: void(0);"
-              className="social-list-item border-danger text-danger"
-            >
+            <a href="#" className="social-list-item border-danger text-danger">
               <i className="mdi mdi-google"></i>
             </a>
           </li>
           <li className="list-inline-item">
-            <a
-              href="javascript: void(0);"
-              className="social-list-item border-info text-info"
-            >
+            <a href="#" className="social-list-item border-info text-info">
               <i className="mdi mdi-twitter"></i>
             </a>
           </li>
           <li className="list-inline-item">
             <a
-              href="javascript: void(0);"
+              href="#"
               className="social-list-item border-secondary text-secondary"
             >
               <i className="mdi mdi-github-circle"></i>
