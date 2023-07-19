@@ -84,9 +84,7 @@ exports.createBug = async (req, res) => {
   try {
     const bodyAttachments = await uploadFiles(req, res);
     const user = await User.findById(userId);
-    let {
-      title, description, project, assignees,
-    } = req.body;
+    let { title, description, project, assignees, severity } = req.body;
 
     try {
       assignees = parseJSONField(assignees, 'Error parsing assignees string:');
@@ -94,7 +92,9 @@ exports.createBug = async (req, res) => {
       return res.status(400).json({ message: error.message });
     }
 
-    const attachmentPromises = bodyAttachments.map((attachmentData) => new Attachment(attachmentData).save());
+    const attachmentPromises = bodyAttachments.map((attachmentData) =>
+      new Attachment(attachmentData).save()
+    );
     const attachments = await Promise.all(attachmentPromises);
 
     const newBug = await Bug.create({
@@ -105,6 +105,7 @@ exports.createBug = async (req, res) => {
       creator: userId,
       project,
       assignees,
+      severity,
       attachments: attachments.map((attachment) => attachment._id),
     });
 
@@ -142,7 +143,9 @@ exports.updateBugById = async (req, res) => {
     }
 
     const newAttachmentsData = await uploadFiles(req, res);
-    const newAttachmentsPromises = newAttachmentsData.map((attachmentData) => new Attachment(attachmentData).save());
+    const newAttachmentsPromises = newAttachmentsData.map((attachmentData) =>
+      new Attachment(attachmentData).save()
+    );
     const newAttachments = await Promise.all(newAttachmentsPromises);
 
     let {
@@ -150,13 +153,14 @@ exports.updateBugById = async (req, res) => {
       description,
       status,
       assignees,
+      severity,
       attachments: updatedAttachmentIds,
     } = req.body;
 
     try {
       updatedAttachmentIds = parseJSONField(
         updatedAttachmentIds,
-        'Error parsing attachments string:',
+        'Error parsing attachments string:'
       );
       assignees = parseJSONField(assignees, 'Error parsing assignees string:');
     } catch (error) {
@@ -165,7 +169,7 @@ exports.updateBugById = async (req, res) => {
 
     const oldAttachmentIds = bug.attachments;
     const attachmentsToDelete = oldAttachmentIds.filter(
-      (id) => !updatedAttachmentIds.includes(id.toString()),
+      (id) => !updatedAttachmentIds.includes(id.toString())
     );
 
     for (const attachmentId of attachmentsToDelete) {
@@ -191,9 +195,10 @@ exports.updateBugById = async (req, res) => {
         description,
         status,
         assignees,
+        severity,
         attachments: validAttachments,
       },
-      { new: true },
+      { new: true }
     );
 
     const user = await User.findById(userId);

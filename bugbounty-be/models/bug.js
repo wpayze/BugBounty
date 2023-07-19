@@ -9,6 +9,11 @@ const bugSchema = new mongoose.Schema({
     enum: ['open', 'in progress', 'closed'],
     default: 'open',
   },
+  severity: {
+    type: String,
+    enum: ['low', 'medium', 'high', 'critical'],
+    default: 'medium',
+  },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
   assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
