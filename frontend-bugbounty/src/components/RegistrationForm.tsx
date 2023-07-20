@@ -2,12 +2,14 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import { RegisterRequest } from "@/shared/requestTypes";
 import authService from "@/services/authService";
+import { useRouter } from "next/navigation";
 
 interface FormData extends RegisterRequest {
   repeatPassword: string;
 }
 
 const RegisterComponent: React.FC = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -72,6 +74,7 @@ const RegisterComponent: React.FC = () => {
       try {
         const registerRequest: RegisterRequest = formData;
         await authService.register(registerRequest);
+        router.push("/login");
       } catch (error) {
         setIsLoading(false);
         setFormError(true);

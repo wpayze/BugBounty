@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
 import "./loginStyles.css";
-
 const LoginPage: React.FC = () => {
   return (
     <div id="login-bg">

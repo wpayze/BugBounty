@@ -1,13 +1,15 @@
 import SideMenu from "@/components/navbar/SideMenu";
 import Link from "next/link";
+import DashboardProtection from "@/components/navbar/DashboardProtection";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div id="layout-wrapper">
+      <DashboardProtection />
       <header id="page-topbar">
         <div className="navbar-header">
           <div className="d-flex align-items-left">

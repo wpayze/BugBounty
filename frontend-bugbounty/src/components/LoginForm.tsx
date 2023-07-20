@@ -1,12 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import authService from "@/services/authService";
+import { LoginRequest } from "@/shared/requestTypes";
+import { LoginResponse, VerifyTokenResponse } from "@/shared/responseTypes";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 
 const LoginForm: React.FC = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [formError, setFormError] = useState<boolean>(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  useEffect(() => {
+    const validateToken = async () => {
+      try {
+        const result: VerifyTokenResponse = await authService.verifyToken();
+        if (result.isValid) router.push("/dashboard");
+      } catch (error) {}
+    };
+
+    validateToken();
+  }, []);
+
+  const handleSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
     const validationErrors: { [key: string]: string } = {};
 
@@ -33,11 +50,31 @@ const LoginForm: React.FC = () => {
       return;
     }
 
-    console.log("Login successful!");
+    performLogin();
+  };
+
+  const performLogin = async () => {
+    const loginRequest: LoginRequest = {
+      email: email,
+      password: password,
+    };
+
+    try {
+      await authService.login(loginRequest);
+      router.push("/dashboard");
+    } catch (error) {
+      console.log(error);
+      setFormError(true);
+    }
   };
 
   return (
     <form className="user" onSubmit={handleSubmit}>
+      {formError && (
+        <div className="alert alert-danger" role="alert">
+          Login failed. Please check your email and password and try again.
+        </div>
+      )}
       <div className="form-group">
         <input
           type="email"
@@ -86,18 +123,12 @@ const LoginForm: React.FC = () => {
             </a>
           </li>
           <li className="list-inline-item">
-            <a
-              href="#"
-              className="social-list-item border-danger text-danger"
-            >
+            <a href="#" className="social-list-item border-danger text-danger">
               <i className="mdi mdi-google"></i>
             </a>
           </li>
           <li className="list-inline-item">
-            <a
-              href="#"
-              className="social-list-item border-info text-info"
-            >
+            <a href="#" className="social-list-item border-info text-info">
               <i className="mdi mdi-twitter"></i>
             </a>
           </li>

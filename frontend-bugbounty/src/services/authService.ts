@@ -50,7 +50,7 @@ class AuthService {
     }
 
     const response = await fetch(`${this.api_url}/verify`, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
