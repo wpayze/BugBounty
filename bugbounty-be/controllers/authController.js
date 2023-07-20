@@ -155,9 +155,6 @@ exports.verifyToken = async (req, res) => {
     }
 
     const token = authHeader.split(' ')[1];
-
-    console.log(token);
-
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await User.findById(decodedToken.userId);
     if (!user) {

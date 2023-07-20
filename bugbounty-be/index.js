@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes/routes');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
@@ -19,8 +20,13 @@ mongoose
     console.error('Error al conectar a la base de datos:', error);
   });
 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+  })
+);
 app.use(express.json());
-app.use('/api/public', express.static(path.join(__dirname, 'uploads')))
+app.use('/api/public', express.static(path.join(__dirname, 'uploads')));
 app.use('/api', routes);
 
 app.listen(port, () => {
