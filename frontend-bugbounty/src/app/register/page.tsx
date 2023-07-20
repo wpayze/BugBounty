@@ -2,8 +2,6 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import RegistrationForm from "@/components/RegistrationForm";
-import "../../../public/css/theme.min.css";
-import "../../../public/css/icons.min.css";
 import "./registerStyles.css";
 
 const RegisterPage: React.FC = () => {

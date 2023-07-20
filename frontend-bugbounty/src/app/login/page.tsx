@@ -2,8 +2,6 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
-import "../../../public/css/theme.min.css";
-import "../../../public/css/icons.min.css";
 import "./loginStyles.css";
 
 const LoginPage: React.FC = () => {
