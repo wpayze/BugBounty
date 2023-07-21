@@ -38,13 +38,10 @@ class AuthService {
     }
 
     const data = (await response.json()) as LoginResponse;
-    localStorage.setItem("token", data.accessToken);
-
     return data;
   }
 
-  async verifyToken(): Promise<VerifyTokenResponse> {
-    const token = localStorage.getItem("token");
+  async verifyToken(token: string | null): Promise<VerifyTokenResponse> {
     if (!token) {
       throw new Error("No token found");
     }
@@ -58,7 +55,6 @@ class AuthService {
     });
 
     if (!response.ok) {
-      localStorage.removeItem("token");
       throw new Error("Token no válido");
     }
 

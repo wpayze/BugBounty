@@ -3,7 +3,8 @@ import authService from "@/services/authService";
 import { LoginRequest } from "@/shared/requestTypes";
 import { LoginResponse, VerifyTokenResponse } from "@/shared/responseTypes";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 const LoginForm: React.FC = () => {
   const router = useRouter();
@@ -11,13 +12,17 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState<boolean>(false);
+  const { setUser } = useContext(AdminPanelContext);
 
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const result: VerifyTokenResponse = await authService.verifyToken();
+        const token: string | null = localStorage.getItem("token");
+        const result: VerifyTokenResponse = await authService.verifyToken(token);
         if (result.isValid) router.push("/dashboard");
-      } catch (error) {}
+      } catch (error) {
+        localStorage.removeItem("token");
+      }
     };
 
     validateToken();
@@ -60,7 +65,9 @@ const LoginForm: React.FC = () => {
     };
 
     try {
-      await authService.login(loginRequest);
+      const data: LoginResponse = await authService.login(loginRequest);
+      localStorage.setItem("token", data.accessToken);
+      setUser(data.user);
       router.push("/dashboard");
     } catch (error) {
       console.log(error);

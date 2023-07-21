@@ -10,9 +10,10 @@ const DashboardProtection: React.FC = () => {
   useEffect(() => {
     const validateToken = async () => {
       try {
-        const result: VerifyTokenResponse = await authService.verifyToken();
-        if (!result.isValid) router.push("/login");
+        const token: string | null = localStorage.getItem("token");
+        await authService.verifyToken(token);
       } catch (error) {
+        localStorage.removeItem("token");
         router.push("/login");
       }
     };

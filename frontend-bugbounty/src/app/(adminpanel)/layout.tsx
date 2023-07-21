@@ -1,6 +1,8 @@
 import SideMenu from "@/components/navbar/SideMenu";
 import Link from "next/link";
 import DashboardProtection from "@/components/navbar/DashboardProtection";
+import UserDropdown from "@/components/navbar/UserDropdown";
+import CreateNewDropdown from "@/components/navbar/CreateNewDropdown";
 
 export default async function RootLayout({
   children,
@@ -20,19 +22,7 @@ export default async function RootLayout({
             >
               <i className="fa fa-fw fa-bars" />
             </button>
-            <div className="dropdown d-none d-sm-inline-block">
-              <button
-                type="button"
-                className="btn header-item waves-effect"
-                id="page-header-user-dropdown"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <i className="mdi mdi-plus" /> Create New
-                <i className="mdi mdi-chevron-down d-none d-sm-inline-block" />
-              </button>
-            </div>
+            <CreateNewDropdown />
           </div>
           <div className="d-flex align-items-center">
             <div className="dropdown d-inline-block">
@@ -48,23 +38,7 @@ export default async function RootLayout({
                 {/* <span className="badge badge-danger badge-pill">3</span> */}
               </button>
             </div>
-            <div className="dropdown d-inline-block ml-2">
-              <button
-                type="button"
-                className="btn header-item waves-effect"
-                id="page-header-user-dropdown"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <img
-                  className="rounded-circle header-profile-user"
-                  src="assets/images/users/avatar-3.jpg"
-                />
-                <span className="d-none d-sm-inline-block ml-1">Jamie D.</span>
-                <i className="mdi mdi-chevron-down d-none d-sm-inline-block" />
-              </button>
-            </div>
+            <UserDropdown />
           </div>
         </div>
       </header>
