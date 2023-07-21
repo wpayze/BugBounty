@@ -59,15 +59,7 @@ export default async function RootLayout({
       </div>
       <div className="main-content">
         <div className="page-content">
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col-12">
-                <div className="page-title-box d-flex align-items-center justify-content-between">
-                  {children}
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="container-fluid">{children}</div>
         </div>
         <footer className="footer">
           <div className="container-fluid">

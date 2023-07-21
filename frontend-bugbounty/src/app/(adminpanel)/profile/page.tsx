@@ -1,11 +1,11 @@
 import React from 'react';
+import PageTitle from '../PageTitle';
 
 const Profile: React.FC = () => {
   return (
-    <div>
-      <h2>Profile</h2>
-      <p>This is a sample Profile component.</p>
-    </div>
+    <>
+      <PageTitle title="Profile" />
+    </>
   );
 };
 
