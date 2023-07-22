@@ -7,6 +7,8 @@ const cors = require('cors');
 
 const app = express();
 const port = 3000;
+const cookieParser = require('cookie-parser');
+
 
 mongoose
   .connect(process.env.DB_CONNECTION, {
@@ -25,6 +27,8 @@ app.use(
     origin: process.env.FRONTEND_URL,
   })
 );
+
+app.use(cookieParser());
 app.use(express.json());
 app.use('/api/public', express.static(path.join(__dirname, 'uploads')));
 app.use('/api', routes);

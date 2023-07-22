@@ -27,9 +27,7 @@ const generateRefreshToken = (user) => {
 
 exports.registerUserAndCreateCompany = async (req, res) => {
   try {
-    const {
-      name, email, password, companyName,
-    } = req.body;
+    const { name, email, password, companyName } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -77,9 +75,7 @@ exports.registerUserAndCreateCompany = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const {
-      name, email, password, company, role,
-    } = req.body;
+    const { name, email, password, company, role } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -140,7 +136,22 @@ exports.loginUser = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.status(200).json({ accessToken, refreshToken, user });
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ user });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'An error occurred while logging in' });
@@ -151,19 +162,28 @@ exports.verifyToken = async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-      return res.status(401).json({ message: 'No token provided', isValid: false });
+      return res
+        .status(401)
+        .json({ message: 'No token provided', isValid: false });
     }
 
     const token = authHeader.split(' ')[1];
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await User.findById(decodedToken.userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found', isValid: false });
+      return res
+        .status(404)
+        .json({ message: 'User not found', isValid: false });
     }
 
-    res.status(200).json({ message: 'Token verified successfully', user, isValid: true });
+    res
+      .status(200)
+      .json({ message: 'Token verified successfully', user, isValid: true });
   } catch (error) {
     console.error('Error verifying token:', error);
-    res.status(500).json({ message: 'An error occurred while verifying the token', isValid: false });
+    res.status(500).json({
+      message: 'An error occurred while verifying the token',
+      isValid: false,
+    });
   }
 };

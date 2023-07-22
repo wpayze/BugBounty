@@ -1,13 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 const authenticateJWT = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies.accessToken;
 
-  if (!authHeader) {
+  if (!token) {
     return res.status(401).json({ message: 'Authorization token missing' });
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
