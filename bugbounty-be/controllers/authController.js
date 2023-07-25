@@ -158,6 +158,24 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+exports.logoutUser = async (req, res) => {
+  try {
+    res.cookie('accessToken', '', {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    console.error('Error logging out:', error);
+    res.status(500).json({ message: 'An error occurred while logging out' });
+  }
+};
+
 exports.verifyToken = async (req, res) => {
   const { userId } = req.user;
 

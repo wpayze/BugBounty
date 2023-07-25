@@ -13,7 +13,7 @@ exports.getAllUsers = async (req, res) => {
       return res.status(400).json({ message: 'Invalid company ID' });
     }
 
-    const users = await User.find({ company: companyId });
+    const users = await User.find({ company: companyId }).select('-password');
 
     return res.status(200).json(users);
   } catch (error) {
@@ -33,7 +33,10 @@ exports.getUserById = async (req, res) => {
       return res.status(400).json({ message: 'Invalid company ID or user ID' });
     }
 
-    const user = await User.findOne({ _id: userId, company: companyId });
+    const user = await User.findOne(
+      { _id: userId, company: companyId },
+      '-password'
+    );
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -64,8 +67,8 @@ exports.updateUserById = async (req, res) => {
     }
 
     const files = await uploadFiles(req, res);
-    const profileImage = files.find( f => f.fieldname === "profileImage");
-    
+    const profileImage = files.find((f) => f.fieldname === 'profileImage');
+
     if (user.profileImage) {
       fs.unlink(
         path.join(__dirname, '../uploads', user.profileImage),
@@ -85,7 +88,7 @@ exports.updateUserById = async (req, res) => {
         profileImage: profileImage.url,
       },
       { new: true }
-    ); 
+    ).select('-password');
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
