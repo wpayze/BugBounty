@@ -7,6 +7,10 @@ const projectRoutes = require('./projectRoutes');
 const bugRoutes = require('./bugRoutes');
 const userRoutes = require('./userRoutes');
 
+router.get('/', (req, res) => {
+  res.send('Hola mundo');
+});
+
 router.use('/auth', authRoutes);
 router.use('/companies', companyRoutes);
 router.use('/projects', projectRoutes);

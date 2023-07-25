@@ -2,9 +2,15 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
+import { cookies } from 'next/headers';
 import "./loginStyles.css";
 
 const LoginPage: React.FC = () => {
+  const nextCookies = cookies(); 
+  const token = nextCookies.get('accessToken') 
+
+  console.log({token});
+
   return (
     <div id="login-bg">
       <div className="container">

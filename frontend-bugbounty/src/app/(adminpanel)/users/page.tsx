@@ -1,8 +1,25 @@
 import React from "react";
 import PageTitle from "../PageTitle";
+import userService from "@/services/userService";
+import { User } from "@/shared/types";
+import { cookies } from "next/headers";
 
-const Users: React.FC = () => {
-  console.log("XD");
+async function fetchAllUsers(token: string | undefined): Promise<User[]> {
+  try {
+    const users: User[] = await userService.getAll();
+    return users;
+  } catch (error) {
+    console.error("Error fetching all users:", (error as Error).message);
+    return [];
+  }
+}
+
+const Users: React.FC = async () => {
+  const nextCookies = cookies();
+  const token = nextCookies.get("accessToken");
+  const users: User[] = await fetchAllUsers(token?.value);
+  console.log(users);
+
   return (
     <>
       <PageTitle title="Users" />

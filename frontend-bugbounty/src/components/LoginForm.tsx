@@ -1,9 +1,9 @@
 "use client";
 import authService from "@/services/authService";
 import { LoginRequest } from "@/shared/requestTypes";
-import { LoginResponse, VerifyTokenResponse } from "@/shared/responseTypes";
+import { LoginResponse } from "@/shared/responseTypes";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 const LoginForm: React.FC = () => {
@@ -13,20 +13,6 @@ const LoginForm: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState<boolean>(false);
   const { setUser } = useContext(AdminPanelContext);
-
-  useEffect(() => {
-    const validateToken = async () => {
-      try {
-        const token: string | null = localStorage.getItem("token");
-        const result: VerifyTokenResponse = await authService.verifyToken(token);
-        if (result.isValid) router.push("/dashboard");
-      } catch (error) {
-        localStorage.removeItem("token");
-      }
-    };
-
-    validateToken();
-  }, []);
 
   const handleSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
@@ -66,7 +52,6 @@ const LoginForm: React.FC = () => {
 
     try {
       const data: LoginResponse = await authService.login(loginRequest);
-      localStorage.setItem("token", data.accessToken);
       setUser(data.user);
       router.push("/dashboard");
     } catch (error) {

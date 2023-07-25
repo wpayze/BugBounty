@@ -3,10 +3,21 @@ import Link from "next/link";
 import React, { useContext, useState } from "react";
 import Image from "next/image";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
+import { User } from "@/shared/types";
+import { useEffect } from "react";
 
-const UserDropdown: React.FC = () => {
-  const { user } = useContext(AdminPanelContext);
+
+interface UserDropdownProps {
+  user: User | null;
+}
+
+const UserDropdown: React.FC<UserDropdownProps> = ({ user }) => {
+  const { setUser } = useContext(AdminPanelContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    setUser(user);
+  }, [])
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

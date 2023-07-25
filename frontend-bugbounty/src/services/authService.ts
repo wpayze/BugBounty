@@ -2,8 +2,8 @@ import { LoginRequest, RegisterRequest } from "@/shared/requestTypes";
 import {
   RegisterResponse,
   LoginResponse,
-  VerifyTokenResponse,
 } from "@/shared/responseTypes";
+import { User } from "@/shared/types";
 
 class AuthService {
   readonly api_url: string = `${process.env.API_URL}/auth`;
@@ -30,6 +30,7 @@ class AuthService {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(request),
     });
 
@@ -41,24 +42,25 @@ class AuthService {
     return data;
   }
 
-  async verifyToken(token: string | null): Promise<VerifyTokenResponse> {
-    if (!token) {
-      throw new Error("No token found");
+  async verifyToken(token?: string): Promise<User> {
+    const headers: { [key: string]: string } = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Cookie"] = `accessToken=${token}`;
     }
 
     const response = await fetch(`${this.api_url}/verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
+      credentials: "include",
     });
 
     if (!response.ok) {
-      throw new Error("Token no válido");
+      throw new Error("Token Invalido");
     }
 
-    return response.json() as Promise<VerifyTokenResponse>;
+    return response.json() as Promise<User>;
   }
 }
 

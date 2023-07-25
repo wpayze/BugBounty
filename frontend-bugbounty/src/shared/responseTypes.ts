@@ -9,9 +9,3 @@ export interface LoginResponse {
   refreshToken: string;
   user: User;
 }
-
-export interface VerifyTokenResponse {
-  message: string;
-  user: User;
-  isValid: boolean;
-}

@@ -1,17 +1,29 @@
 import SideMenu from "@/components/navbar/SideMenu";
 import Link from "next/link";
-import DashboardProtection from "@/components/navbar/DashboardProtection";
 import UserDropdown from "@/components/navbar/UserDropdown";
 import CreateNewDropdown from "@/components/navbar/CreateNewDropdown";
+import authService from "@/services/authService";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { User } from "@/shared/types";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nextCookies = cookies();
+  const token = nextCookies.get("accessToken");
+  let user: User | null = null;
+
+  try {
+    user = await authService.verifyToken(token?.value);
+  } catch (error) {
+    redirect("/login");
+  }
+
   return (
     <div id="layout-wrapper">
-      <DashboardProtection />
       <header id="page-topbar">
         <div className="navbar-header">
           <div className="d-flex align-items-left">
@@ -38,7 +50,7 @@ export default async function RootLayout({
                 {/* <span className="badge badge-danger badge-pill">3</span> */}
               </button>
             </div>
-            <UserDropdown />
+            <UserDropdown user={user} />
           </div>
         </div>
       </header>
