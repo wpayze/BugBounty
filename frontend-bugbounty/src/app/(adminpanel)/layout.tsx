@@ -14,10 +14,11 @@ export default async function RootLayout({
 }) {
   const nextCookies = cookies();
   const token = nextCookies.get("accessToken");
+  const as = new authService(token?.value);
   let user: User | null = null;
 
   try {
-    user = await authService.verifyToken(token?.value);
+    user = await as.verifyToken();
   } catch (error) {
     redirect("/login");
   }

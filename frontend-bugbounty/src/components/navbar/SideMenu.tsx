@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; // Importamos el hook useRouter
+import { usePathname, useRouter } from "next/navigation";
+import AuthService from "@/services/authService";
 
 const SideMenu: React.FC = () => {
   const pathname = usePathname();
@@ -26,8 +27,9 @@ const SideMenu: React.FC = () => {
       icon: "feather-log-out",
       label: "Logout",
       type: "button",
-      functionToCall: () => {
-        localStorage.removeItem("token");
+      functionToCall: async () => {
+        const service = new AuthService();
+        service.logout();
         router.replace("/");
       },
     },

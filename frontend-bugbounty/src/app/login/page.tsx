@@ -4,12 +4,24 @@ import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
 import { cookies } from 'next/headers';
 import "./loginStyles.css";
+import AuthService from "@/services/authService";
+import { User } from "@/shared/types";
+import { redirect } from "next/navigation";
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC = async () => {
   const nextCookies = cookies(); 
   const token = nextCookies.get('accessToken') 
+  const authS = new AuthService(token?.value);
+  let user: User | null = null;
 
-  console.log({token});
+  try {
+    user = await authS.verifyToken();
+  } catch (error) {
+    user = null;
+  }
+
+  if (user)
+    redirect("/dashboard");
 
   return (
     <div id="login-bg">

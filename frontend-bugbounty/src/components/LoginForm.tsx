@@ -1,5 +1,5 @@
 "use client";
-import authService from "@/services/authService";
+import AuthService from "@/services/authService";
 import { LoginRequest } from "@/shared/requestTypes";
 import { LoginResponse } from "@/shared/responseTypes";
 import { useRouter } from "next/navigation";
@@ -14,8 +14,11 @@ const LoginForm: React.FC = () => {
   const [formError, setFormError] = useState<boolean>(false);
   const { setUser } = useContext(AdminPanelContext);
 
+  const as = new AuthService();
+
   const handleSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
+    setFormError(false);
     const validationErrors: { [key: string]: string } = {};
 
     if (!email) {
@@ -51,11 +54,10 @@ const LoginForm: React.FC = () => {
     };
 
     try {
-      const data: LoginResponse = await authService.login(loginRequest);
+      const data: LoginResponse = await as.login(loginRequest);
       setUser(data.user);
       router.push("/dashboard");
     } catch (error) {
-      console.log(error);
       setFormError(true);
     }
   };

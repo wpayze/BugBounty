@@ -1,12 +1,14 @@
 import { LoginRequest, RegisterRequest } from "@/shared/requestTypes";
-import {
-  RegisterResponse,
-  LoginResponse,
-} from "@/shared/responseTypes";
+import { RegisterResponse, LoginResponse } from "@/shared/responseTypes";
 import { User } from "@/shared/types";
 
 class AuthService {
-  readonly api_url: string = `${process.env.API_URL}/auth`;
+  private readonly api_url: string;
+
+  constructor(private token: string = "") {
+    this.api_url = `${process.env.API_URL}/auth`;
+    this.token = token;
+  }
 
   async register(request: RegisterRequest): Promise<RegisterResponse> {
     const response = await fetch(`${this.api_url}/register`, {
@@ -18,7 +20,7 @@ class AuthService {
     });
 
     if (!response.ok) {
-      throw new Error("Error al registrar el usuario");
+      throw new Error("Error registering user");
     }
 
     return response.json() as Promise<RegisterResponse>;
@@ -35,20 +37,39 @@ class AuthService {
     });
 
     if (!response.ok) {
-      throw new Error("Error al iniciar sesión");
+      throw new Error("Error logging in");
     }
 
     const data = (await response.json()) as LoginResponse;
     return data;
   }
 
-  async verifyToken(token?: string): Promise<User> {
+  async logout(): Promise<void> {
+    try {
+      const response = await fetch(`${this.api_url}/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error logging out");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+      throw new Error("Error logging out");
+    }
+  }
+
+  async verifyToken(): Promise<User> {
     const headers: { [key: string]: string } = {
       "Content-Type": "application/json",
     };
 
-    if (token) {
-      headers["Cookie"] = `accessToken=${token}`;
+    if (this.token) {
+      headers["Cookie"] = `accessToken=${this.token}`;
     }
 
     const response = await fetch(`${this.api_url}/verify`, {
@@ -57,11 +78,11 @@ class AuthService {
     });
 
     if (!response.ok) {
-      throw new Error("Token Invalido");
+      throw new Error("Invalid token");
     }
 
     return response.json() as Promise<User>;
   }
 }
 
-export default new AuthService();
+export default AuthService;

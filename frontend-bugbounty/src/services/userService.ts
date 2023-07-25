@@ -1,7 +1,25 @@
 import { User } from "@/shared/types";
 
 class UserService {
-  readonly api_url: string = `${process.env.API_URL}/users`;
+  private readonly api_url: string;
+  private readonly token: string | undefined;
+
+  constructor(token: string | undefined = "") {
+    this.api_url = `${process.env.API_URL}/users`;
+    this.token = token;
+  }
+
+  private getRequestHeaders() {
+    const headers: { [key: string]: string } = {
+      "Content-Type": "application/json",
+    };
+
+    if (this.token) {
+      headers["Cookie"] = `accessToken=${this.token}`;
+    }
+
+    return headers;
+  }
 
   async getById(userId: number): Promise<User> {
     try {
@@ -22,7 +40,8 @@ class UserService {
   async getAll(): Promise<User[]> {
     try {
       const response = await fetch(this.api_url, {
-        credentials: "include"
+        headers: this.getRequestHeaders(),
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error(`Error getting all users: ${response.statusText}`);
@@ -37,9 +56,7 @@ class UserService {
     try {
       const response = await fetch(`${this.api_url}/${userId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: this.getRequestHeaders(),
         body: JSON.stringify(userData),
       });
       if (!response.ok) {
@@ -56,4 +73,4 @@ class UserService {
   }
 }
 
-export default new UserService();
+export default UserService;

@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import React, { useState } from "react";
-import Image from "next/image";
 
 const CreateNewDropdown: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
