@@ -3,6 +3,7 @@ import PageTitle from "../PageTitle";
 import userService from "@/services/userService";
 import { User } from "@/shared/types";
 import { cookies } from "next/headers";
+import CreateNewUserButton from "@/components/users/CreateNewUserButton";
 
 const Users: React.FC = async () => {
   const roleColors: { [key: string]: string } = {
@@ -46,13 +47,7 @@ const Users: React.FC = async () => {
                 </div>
                 <div className="col-md-6">
                   <div className="d-flex justify-content-end">
-                    <button
-                      type="button"
-                      className="btn btn-lg btn-primary waves-effect waves-light"
-                    >
-                      <i className="feather-plus" />
-                      {" "}Create New User
-                    </button>
+                    <CreateNewUserButton />
                   </div>
                 </div>
               </div>
