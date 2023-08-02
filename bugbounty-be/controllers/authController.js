@@ -75,7 +75,8 @@ exports.registerUserAndCreateCompany = async (req, res) => {
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, company, role } = req.body;
+    const { name, email, password, role } = req.body;
+    const { companyId } = req.user;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -89,12 +90,12 @@ exports.registerUser = async (req, res) => {
       role,
     });
 
-    const isValidCompanyId = mongoose.Types.ObjectId.isValid(company);
+    const isValidCompanyId = mongoose.Types.ObjectId.isValid(companyId);
     if (!isValidCompanyId) {
       return res.status(400).json({ message: 'Invalid company ID' });
     }
 
-    const existingCompany = await Company.findById(company);
+    const existingCompany = await Company.findById(companyId);
     if (!existingCompany) {
       return res.status(404).json({ message: 'Company not found' });
     }

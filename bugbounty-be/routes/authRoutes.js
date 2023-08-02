@@ -6,7 +6,6 @@ const authenticateJWT = require('../middlewares/authenticateJWT');
 
 // Routes for authentication
 router.post('/register', authController.registerUserAndCreateCompany);
-router.post('/addUser', authController.registerUser);
 router.post('/login', authController.loginUser);
 router.post('/logout', authController.logoutUser);
 router.get('/verify', authenticateJWT, authController.verifyToken);
