@@ -2,19 +2,16 @@ import SideMenu from "@/components/navbar/SideMenu";
 import Link from "next/link";
 import UserDropdown from "@/components/navbar/UserDropdown";
 import CreateNewDropdown from "@/components/navbar/CreateNewDropdown";
-import authService from "@/services/authService";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { User } from "@/shared/types";
+import { initAuthService } from "@/helpers/initServices";
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const nextCookies = cookies();
-  const token = nextCookies.get("accessToken");
-  const as = new authService(token?.value);
+  const as = initAuthService();
   let user: User | null = null;
 
   try {

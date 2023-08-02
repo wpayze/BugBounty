@@ -1,16 +1,24 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import FormModal from "../FormModal";
+import CreateUserForm from "./forms/CreateUserForm";
 
 const CreateNewUserButton: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleClick = () => {
-    setShowModal(true); 
+    setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
+  };
+
+  const submitForm = () => {
+    formRef.current?.dispatchEvent(
+      new Event("submit", { cancelable: true, bubbles: true })
+    );
   };
 
   return (
@@ -23,10 +31,13 @@ const CreateNewUserButton: React.FC = () => {
         <i className="feather-plus" /> Create New User
       </button>
 
-      <FormModal showModal={showModal} onCloseModal={handleCloseModal} title="Create User">
-        <div>
-            HOLA!
-        </div>
+      <FormModal
+        showModal={showModal}
+        onCloseModal={handleCloseModal}
+        title="Create User"
+        onSaveModal={submitForm}
+      >
+        <CreateUserForm formRef={formRef} setShowModal={setShowModal} />
       </FormModal>
     </>
   );

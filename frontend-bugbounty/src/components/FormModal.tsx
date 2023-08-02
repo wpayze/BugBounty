@@ -4,6 +4,7 @@ import React, { ReactNode } from "react";
 interface FormModalProps {
   showModal: boolean;
   onCloseModal: () => void;
+  onSaveModal?: () => void;
   title: string;
   children: ReactNode;
 }
@@ -11,8 +12,9 @@ interface FormModalProps {
 const FormModal: React.FC<FormModalProps> = ({
   showModal,
   onCloseModal,
-  title,
-  children
+  onSaveModal,
+  title = "Bug Bounty",
+  children,
 }) => {
   return (
     <>
@@ -41,15 +43,14 @@ const FormModal: React.FC<FormModalProps> = ({
                 className="close waves-effect waves-light"
                 data-dismiss="modal"
                 aria-label="Close"
+                onClick={onCloseModal}
               >
-                <span aria-hidden="true" onClick={onCloseModal}>
+                <span aria-hidden="true">
                   ×
                 </span>
               </button>
             </div>
-            <div className="modal-body">
-              {children}
-            </div>
+            <div className="modal-body">{children}</div>
             <div className="modal-footer">
               <button
                 type="button"
@@ -59,12 +60,15 @@ const FormModal: React.FC<FormModalProps> = ({
               >
                 Close
               </button>
-              <button
-                type="button"
-                className="btn btn-primary waves-effect waves-light"
-              >
-                Save changes
-              </button>
+              {onSaveModal && (
+                <button
+                  onClick={onSaveModal}
+                  type="button"
+                  className="btn btn-primary waves-effect waves-light"
+                >
+                  Save changes
+                </button>
+              )}
             </div>
           </div>
         </div>

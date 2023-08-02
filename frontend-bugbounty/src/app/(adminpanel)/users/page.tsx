@@ -1,9 +1,8 @@
 import React from "react";
 import PageTitle from "../PageTitle";
-import userService from "@/services/userService";
 import { User } from "@/shared/types";
-import { cookies } from "next/headers";
 import CreateNewUserButton from "@/components/users/CreateNewUserButton";
+import { initUserService } from "@/helpers/initServices";
 
 const Users: React.FC = async () => {
   const roleColors: { [key: string]: string } = {
@@ -21,9 +20,7 @@ const Users: React.FC = async () => {
   let users: User[] = [];
 
   try {
-    const nextCookies = cookies();
-    const token = nextCookies.get("accessToken");
-    const us = new userService(token?.value);
+    const us = initUserService();
     users = await us.getAll();
   } catch (error) {
     console.error(error);

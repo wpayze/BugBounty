@@ -52,19 +52,49 @@ class UserService {
     }
   }
 
+  async add(userData: Partial<User>): Promise<User> {
+    try {
+      const response = await fetch(`${this.api_url}/addUser`, {
+        method: "POST",
+        headers: this.getRequestHeaders(),
+        body: JSON.stringify(userData),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          `${data.message || response.statusText}`
+        );
+      }
+
+      return data as User;
+    } catch (error) {
+      throw new Error(`Error creating user: ${(error as Error).message}`);
+    }
+  }
+
   async update(userId: number, userData: Partial<User>): Promise<User> {
     try {
       const response = await fetch(`${this.api_url}/${userId}`, {
         method: "PUT",
         headers: this.getRequestHeaders(),
         body: JSON.stringify(userData),
+        credentials: "include",
       });
+
+      const data = await response.json();
+
       if (!response.ok) {
         throw new Error(
-          `Error updating user with ID ${userId}: ${response.statusText}`
+          `Error updating user with ID ${userId}: ${
+            data.message || response.statusText
+          }`
         );
       }
-      return (await response.json()) as User;
+
+      return data as User;
     } catch (error) {
       throw new Error(
         `Error updating user with ID ${userId}: ${(error as Error).message}`
