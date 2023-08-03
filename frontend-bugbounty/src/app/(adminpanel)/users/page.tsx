@@ -3,6 +3,7 @@ import PageTitle from "../PageTitle";
 import { User } from "@/shared/types";
 import CreateNewUserButton from "@/components/users/CreateNewUserButton";
 import { initUserService } from "@/helpers/initServices";
+import EditUserButton from "@/components/users/EditUserButton";
 
 const Users: React.FC = async () => {
   const roleColors: { [key: string]: string } = {
@@ -83,9 +84,7 @@ const Users: React.FC = async () => {
                             <button type="button" className="btn btn-secondary">
                               <i className="feather-eye" />
                             </button>
-                            <button type="button" className="btn btn-warning">
-                              <i className="feather-edit" />
-                            </button>
+                            <EditUserButton user={user} />
                           </div>
                         </td>
                       </tr>

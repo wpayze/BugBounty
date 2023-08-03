@@ -1,8 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import CreateEditUserModal from "./modals/CreateEditUserModal";
+import { User } from "@/shared/types";
 
-const CreateNewUserButton: React.FC = () => {
+interface EditUserButtonProps {
+  user: User;
+}
+
+const EditUserButton: React.FC<EditUserButtonProps> = ({ user }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleClick = () => {
@@ -15,22 +20,19 @@ const CreateNewUserButton: React.FC = () => {
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-lg btn-primary waves-effect waves-light"
-        onClick={handleClick}
-      >
-        <i className="feather-plus" /> Create New User
+      <button type="button" className="btn btn-warning" onClick={handleClick}>
+        <i className="feather-edit" />
       </button>
 
       <CreateEditUserModal
         showModal={showModal}
         setShowModal={setShowModal}
         handleCloseModal={handleCloseModal}
-        modalType="create"
+        modalType="update"
+        user={user}
       />
     </>
   );
 };
 
-export default CreateNewUserButton;
+export default EditUserButton;

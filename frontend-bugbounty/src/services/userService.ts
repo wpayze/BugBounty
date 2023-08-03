@@ -26,7 +26,7 @@ class UserService {
       const response = await fetch(`${this.api_url}/${userId}`);
       if (!response.ok) {
         throw new Error(
-          `Error getting user with ID ${userId}: ${response.statusText}`
+          `${userId}: ${response.statusText}`
         );
       }
       return (await response.json()) as User;
@@ -44,7 +44,7 @@ class UserService {
         credentials: "include",
       });
       if (!response.ok) {
-        throw new Error(`Error getting all users: ${response.statusText}`);
+        throw new Error(`${response.statusText}`);
       }
       return (await response.json()) as User[];
     } catch (error) {
@@ -75,7 +75,7 @@ class UserService {
     }
   }
 
-  async update(userId: number, userData: Partial<User>): Promise<User> {
+  async update(userId: string, userData: Partial<User>): Promise<User> {
     try {
       const response = await fetch(`${this.api_url}/${userId}`, {
         method: "PUT",
@@ -88,7 +88,7 @@ class UserService {
 
       if (!response.ok) {
         throw new Error(
-          `Error updating user with ID ${userId}: ${
+          `${
             data.message || response.statusText
           }`
         );

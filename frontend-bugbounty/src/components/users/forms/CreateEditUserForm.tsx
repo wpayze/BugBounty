@@ -1,14 +1,23 @@
 import UserService from "@/services/userService";
 import { AddUserRequest } from "@/shared/requestTypes";
 import React, { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { User } from "@/shared/types";
 
 interface Props {
   formRef: React.RefObject<HTMLFormElement>;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  modalType: "create" | "update";
+  user?: User;
 }
 
-const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
+const CreateEditUserForm: React.FC<Props> = ({
+  formRef,
+  setShowModal,
+  modalType,
+  user,
+}) => {
   const [createError, setCreateError] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<AddUserRequest>({
@@ -17,6 +26,10 @@ const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
     password: "",
     role: "admin",
   });
+
+  useEffect(() => {
+    if (user) setFormData(user);
+  }, [user]);
 
   const router = useRouter();
 
@@ -27,18 +40,20 @@ const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
       newErrors.name = "Name is required";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)
-    ) {
-      newErrors.email = "Invalid email address";
-    }
+    if (modalType === "create") {
+      if (!formData.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)
+      ) {
+        newErrors.email = "Invalid email address";
+      }
 
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters long";
+      if (!formData.password.trim()) {
+        newErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters long";
+      }
     }
 
     setErrors(newErrors);
@@ -62,7 +77,13 @@ const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
     const us = new UserService();
 
     try {
-      await us.add(formData);
+      if (modalType == "create") await us.add(formData);
+      if (modalType == "update") {
+        if (!user?._id) throw new Error("The User ID is invalid.");
+
+        await us.update(user._id, formData);
+      }
+
       setFormData({
         name: "",
         email: "",
@@ -95,32 +116,40 @@ const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
         />
         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
       </div>
-      <div className="form-group">
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          name="email"
-          className={`form-control ${errors.email ? "is-invalid" : ""}`}
-          required
-          value={formData.email}
-          onChange={handleChange}
-        />
-        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-      </div>
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          name="password"
-          className={`form-control ${errors.password ? "is-invalid" : ""}`}
-          required
-          value={formData.password}
-          onChange={handleChange}
-        />
-        {errors.password && (
-          <div className="invalid-feedback">{errors.password}</div>
-        )}
-      </div>
+      {modalType == "create" && (
+        <>
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              name="email"
+              className={`form-control ${errors.email ? "is-invalid" : ""}`}
+              required
+              value={formData.email}
+              onChange={handleChange}
+            />
+            {errors.email && (
+              <div className="invalid-feedback">{errors.email}</div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              name="password"
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
+              required
+              value={formData.password}
+              onChange={handleChange}
+            />
+            {errors.password && (
+              <div className="invalid-feedback">{errors.password}</div>
+            )}
+          </div>
+        </>
+      )}
+
       <div className="form-group">
         <label htmlFor="role">Role:</label>
         <select
@@ -141,4 +170,4 @@ const CreateUserForm: React.FC<Props> = ({ formRef, setShowModal }) => {
   );
 };
 
-export default CreateUserForm;
+export default CreateEditUserForm;

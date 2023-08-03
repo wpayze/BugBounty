@@ -67,7 +67,7 @@ export interface Project {
   _v: number;
   name: string;
   description: string;
-  creator: string | User;
+  creator: User | string;
   coverImage: string;
   attachments: Array<string | Attachment>;
   assignees: Array<string | User>;
