@@ -29,13 +29,17 @@ const uploadFiles = (req, res) =>
       } else if (err) {
         reject(err);
       } else {
-        const attachments = req.files.map((file) => ({
-          url: file.filename,
-          name: file.filename,
-          type: file.mimetype,
-          fieldname: file.fieldname,
-        }));
-        resolve(attachments);
+        if (req.files && Array.isArray(req.files)) {
+          const attachments = req.files.map((file) => ({
+            url: file.filename,
+            name: file.filename,
+            type: file.mimetype,
+            fieldname: file.fieldname,
+          }));
+          resolve(attachments);
+        } else {
+          resolve([]);
+        }
       }
     });
   });

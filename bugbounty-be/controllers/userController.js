@@ -69,7 +69,7 @@ exports.updateUserById = async (req, res) => {
     const files = await uploadFiles(req, res);
     const profileImage = files.find((f) => f.fieldname === 'profileImage');
 
-    if (user.profileImage) {
+    if (profileImage && user.profileImage) {
       fs.unlink(
         path.join(__dirname, '../uploads', user.profileImage),
         (err) => {
@@ -80,15 +80,18 @@ exports.updateUserById = async (req, res) => {
 
     const { name, role } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        name,
-        role,
-        profileImage: profileImage.url,
-      },
-      { new: true }
-    ).select('-password');
+    const updateFields = {
+      name,
+      role,
+    };
+
+    if (profileImage) {
+      updateFields.profileImage = profileImage.url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
+      new: true,
+    }).select('-password');
 
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });

@@ -18,7 +18,7 @@ exports.getAllProjects = async (req, res) => {
     const userIds = companyUsers.map((user) => user._id);
     const projects = await Project.find({
       creator: { $in: userIds },
-    });
+    }).populate("creator");
     res.status(200).json(projects);
   } catch (error) {
     console.error('Error getting projects:', error);
