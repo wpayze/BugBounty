@@ -8,6 +8,10 @@ router.get('/', authenticateJWT, projectController.getAllProjects);
 router.get('/:projectId', authenticateJWT, projectController.getProjectById);
 router.post('/', authenticateJWT, projectController.createProject);
 router.put('/:projectId', authenticateJWT, projectController.updateProjectById);
-router.delete('/:projectId', authenticateJWT, projectController.deleteProjectById);
+router.delete(
+  '/:projectId',
+  authenticateJWT,
+  projectController.deleteProjectById
+);
 
 module.exports = router;

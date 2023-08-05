@@ -1,3 +1,4 @@
+import { AddProjectRequest } from "@/shared/requestTypes";
 import { Project } from "@/shared/types";
 
 class ProjectService {
@@ -55,14 +56,23 @@ class ProjectService {
     }
   }
 
-  async create(project: Project): Promise<Project> {
+  async create(project: AddProjectRequest): Promise<Project> {
     try {
+      const formData = new FormData();
+      formData.append("name", project.name);
+      formData.append("description", project.description);
+
+      if (project.coverImage) {
+        formData.append("coverImage", project.coverImage);
+      }
+
       const response = await fetch(this.api_url, {
         method: "POST",
         headers: this.getRequestHeaders(),
         credentials: "include",
-        body: JSON.stringify(project),
+        body: formData,
       });
+
       if (!response.ok) {
         throw new Error(`${response.statusText}`);
       }
@@ -72,9 +82,9 @@ class ProjectService {
     }
   }
 
-  async update(project: Project): Promise<Project> {
+  async update(id: string, project: AddProjectRequest): Promise<Project> {
     try {
-      const response = await fetch(`${this.api_url}/${project._id}`, {
+      const response = await fetch(`${this.api_url}/${id}`, {
         method: "PUT",
         headers: this.getRequestHeaders(),
         credentials: "include",

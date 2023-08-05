@@ -54,8 +54,8 @@ exports.getProjectById = async (req, res) => {
 };
 
 exports.createProject = async (req, res) => {
+  console.log(req.body);
   const bodyAttachments = await uploadFiles(req, res);
-
   const { userId } = req.user;
   const attachments = [];
   const { name, description } = req.body;

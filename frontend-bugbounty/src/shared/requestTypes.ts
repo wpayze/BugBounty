@@ -12,4 +12,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface AddProjectRequest {
+  name: string;
+  description: string;
+  coverImage: File | null;
+};
+
 export type AddUserRequest = Pick<User, "name" | "email" | "password" | "role">;

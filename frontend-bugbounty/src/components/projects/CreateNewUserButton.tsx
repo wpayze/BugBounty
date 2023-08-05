@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import CreateEditProjectModal from "./modals/CreateEditProjectModal";
 
 const CreateNewProjectButton: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
@@ -22,12 +23,12 @@ const CreateNewProjectButton: React.FC = () => {
         <i className="feather-plus" /> Create New Project
       </button>
 
-      {/* <CreateEditUserModal
+      <CreateEditProjectModal
         showModal={showModal}
         setShowModal={setShowModal}
         handleCloseModal={handleCloseModal}
         modalType="create"
-      /> */}
+      />
     </>
   );
 };
