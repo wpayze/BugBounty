@@ -11,9 +11,7 @@ class ProjectService {
   }
 
   private getRequestHeaders() {
-    const headers: { [key: string]: string } = {
-      "Content-Type": "application/json",
-    };
+    const headers: { [key: string]: string } = {};
 
     if (this.token) {
       headers["Cookie"] = `accessToken=${this.token}`;

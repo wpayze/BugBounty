@@ -54,7 +54,6 @@ exports.getProjectById = async (req, res) => {
 };
 
 exports.createProject = async (req, res) => {
-  console.log(req.body);
   const bodyAttachments = await uploadFiles(req, res);
   const { userId } = req.user;
   const attachments = [];
@@ -135,7 +134,7 @@ exports.updateProjectById = async (req, res) => {
       updateData.coverImage = newCoverImage.url;
     }
 
-    
+
 
     if (project.creator.company.toString() !== companyId) {
       return res.status(403).json({

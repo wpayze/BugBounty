@@ -29,8 +29,7 @@ app.use(
 );
 
 app.use(cookieParser());
-// app.use(express.json({ limit: '15mb' }));
-// app.use(express.urlencoded({ limit: '15mb', extended: true }));
+app.use(express.json());
 app.use('/api/public', express.static(path.join(__dirname, 'uploads')));
 app.use('/api', routes);
 
