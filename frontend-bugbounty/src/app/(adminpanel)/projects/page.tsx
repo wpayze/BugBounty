@@ -4,10 +4,12 @@ import { Project } from "@/shared/types";
 import { initProjectService } from "@/helpers/initServices";
 import Image from "next/image";
 import "./projectStyles.css";
-import CreateNewProjectButton from "@/components/projects/CreateNewUserButton";
+import CreateNewProjectButton from "@/components/projects/CreateNewProjectButton";
+import ProjectDropdown from "@/components/projects/ProjectDropdown";
 
 const Projects: React.FC = async () => {
   let projects: Project[] = [];
+  const api_url = `${process.env.API_URL}/public`;
 
   try {
     const ps = initProjectService();
@@ -44,14 +46,22 @@ const Projects: React.FC = async () => {
         {projects.map((project) => (
           <div key={project._id} className="col-md-6 col-xl-3">
             <div className="card">
-              <Image
-                className="img-fluid project-image"
-                src="/login.png"
-                width={50}
-                height={50}
-                layout="responsive"
-                alt="project image"
-              />
+              <div
+                style={{
+                  backgroundImage: `url(${
+                    project.coverImage
+                      ? `${api_url}/${project.coverImage}`
+                      : "/login.png"
+                  })`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  width: "100%",
+                  height: "150px",
+                  position: "relative",
+                }}
+              >
+                <ProjectDropdown project={project} />
+              </div>
               <div className="card-body">
                 <h5 className="card-title">{project.name}</h5>
                 <p className="card-text">{project.description}</p>

@@ -37,7 +37,7 @@ class ProjectService {
     }
   }
 
-  async getById(id: number): Promise<Project> {
+  async getById(id: string): Promise<Project> {
     try {
       const response = await fetch(`${this.api_url}/${id}`, {
         headers: this.getRequestHeaders(),
