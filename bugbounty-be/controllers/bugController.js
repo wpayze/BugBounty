@@ -23,10 +23,29 @@ function parseJSONField(field, errorMessage) {
 exports.getAllBugs = async (req, res, next) => {
   try {
     const { companyId } = req.user;
+
     const companyUsers = await User.find({ company: companyId });
     const userIds = companyUsers.map((user) => user._id);
-    const bugs = await Bug.find({ creator: { $in: userIds } });
-    res.status(200).json(bugs);
+    const bugs = await Bug.find({ creator: { $in: userIds } }).populate(
+      'project'
+    );
+
+    const groupedBugs = bugs.reduce((acc, bug) => {
+      const projectId = bug.project._id.toString();
+      if (!acc[projectId]) {
+        acc[projectId] = {
+          project: bug.project,
+          bugs: [],
+        };
+      }
+
+      acc[projectId].bugs.push(bug);
+      return acc;
+    }, {});
+
+    const result = Object.values(groupedBugs);
+
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

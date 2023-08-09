@@ -79,7 +79,7 @@ export default async function RootLayout({
               {/* <div className="col-sm-6">Bug Bounty</div> */}
               <div className="col-sm-12">
                 <div className="text-sm-center d-none d-sm-block">
-                  Developed by{" "}
+                   Made with ❤ by {""}
                   <a href="https://wilfredopaiz.com">Wilfredo Paiz</a>
                 </div>
               </div>

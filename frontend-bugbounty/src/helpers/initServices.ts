@@ -1,4 +1,5 @@
 import AuthService from "@/services/authService";
+import BugService from "@/services/bugService";
 import ProjectService from "@/services/projectService";
 import UserService from "@/services/userService";
 import { cookies } from "next/headers";
@@ -21,4 +22,9 @@ export function initAuthService(): AuthService {
 export function initProjectService(): ProjectService {
   const token = getToken();
   return new ProjectService(token?.value);
+}
+
+export function initBugService(): BugService {
+  const token = getToken();
+  return new BugService(token?.value);
 }

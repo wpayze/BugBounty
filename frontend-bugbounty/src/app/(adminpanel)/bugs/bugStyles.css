@@ -1,0 +1,35 @@
+.bug-card {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bug-card:hover {
+    background-color: #f2f2f2;
+}
+
+.bug-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-transform: capitalize;
+}
+
+.bug-severity {
+    text-transform: capitalize;
+}
+
+.bug-border-critical {
+    border-left: 5px solid var(--danger);
+}
+
+.bug-border-high {
+    border-left: 5px solid var(--warning);
+}
+
+.bug-border-medium {
+    border-left: 5px solid var(--info);
+}
+
+.bug-border-low {
+    border-left: 5px solid var(--primary);
+}
