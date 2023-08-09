@@ -1,31 +1,34 @@
 import UserService from "@/services/userService";
 import { AddUserRequest } from "@/shared/requestTypes";
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { User } from "@/shared/types";
+import { ModalName, User } from "@/shared/types";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 interface Props {
   formRef: React.RefObject<HTMLFormElement>;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   modalType: "create" | "update";
-  user?: User;
+  user?: User | null;
+  modalName: ModalName;
 }
 
 const CreateEditUserForm: React.FC<Props> = ({
   formRef,
-  setShowModal,
   modalType,
   user,
+  modalName,
 }) => {
-  const [createError, setCreateError] = useState("");
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [formData, setFormData] = useState<AddUserRequest>({
+  const initialFormData: AddUserRequest = {
     name: "",
     email: "",
     password: "",
     role: "admin",
-  });
+  };
+  const { setShowModals } = useContext(AdminPanelContext);
+  const [createError, setCreateError] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [formData, setFormData] = useState<AddUserRequest>(initialFormData);
 
   useEffect(() => {
     if (user) setFormData(user);
@@ -84,13 +87,11 @@ const CreateEditUserForm: React.FC<Props> = ({
         await us.update(user._id, formData);
       }
 
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        role: "admin",
-      });
-      setShowModal(false);
+      setFormData(initialFormData);
+      setShowModals((prevState) => ({
+        ...prevState,
+        [modalName]: false,
+      }));
       router.refresh();
     } catch (error) {
       setCreateError((error as Error).message);

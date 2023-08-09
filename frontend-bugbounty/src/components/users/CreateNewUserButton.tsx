@@ -1,16 +1,17 @@
 "use client";
-import React, { useState } from "react";
-import CreateEditUserModal from "./modals/CreateEditUserModal";
+import React, { useContext } from "react";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
+import { ModalName } from "@/shared/types";
 
 const CreateNewUserButton: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
+  const { setShowModals } = useContext(AdminPanelContext);
+  const modalName: ModalName = "createUserModal";
 
   const handleClick = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
+    setShowModals((prevState) => ({
+      ...prevState,
+      [modalName]: true,
+    }));
   };
 
   return (
@@ -22,13 +23,6 @@ const CreateNewUserButton: React.FC = () => {
       >
         <i className="feather-plus" /> Create New User
       </button>
-
-      <CreateEditUserModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        handleCloseModal={handleCloseModal}
-        modalType="create"
-      />
     </>
   );
 };

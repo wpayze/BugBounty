@@ -147,14 +147,19 @@ exports.updateProjectById = async (req, res) => {
     const attachmentsToDelete = oldAttachmentIds.filter(
       (id) => !updatedAttachmentIds.includes(id.toString()),
     );
+    
     for (const attachmentId of attachmentsToDelete) {
-      const attachment = await Attachment.findById(attachmentId);
-      if (attachment) {
-        fs.unlink(path.join(__dirname, '../uploads', attachment.url), (err) => {
-          if (err) console.error('Error deleting file:', err);
-        });
-
-        await Attachment.findByIdAndRemove(attachmentId);
+      try {
+        const attachment = await Attachment.findById(attachmentId);
+        if (attachment) {
+          fs.unlink(path.join(__dirname, '../uploads', attachment.url), (err) => {
+            if (err) console.error('Error deleting file:', err);
+          });
+    
+          await Attachment.findByIdAndRemove(attachmentId);
+        }
+      } catch (error) {
+        console.error('Error processing attachment with ID:', attachmentId, error);
       }
     }
 

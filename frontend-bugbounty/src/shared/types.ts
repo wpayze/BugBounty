@@ -72,3 +72,10 @@ export interface Project {
   attachments: Array<string | Attachment>;
   assignees: Array<string | User>;
 }
+
+export type ModalType = "create" | "update";
+export type ModalName = "createUserModal" | "editUserModal" | "createProjectModal" | "editProjectModal";
+export type EditFormData = {
+  user: User | null;
+  project: Project | null;
+};

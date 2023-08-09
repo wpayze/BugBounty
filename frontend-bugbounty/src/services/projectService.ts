@@ -82,12 +82,21 @@ class ProjectService {
 
   async update(id: string, project: AddProjectRequest): Promise<Project> {
     try {
+      const formData = new FormData();
+      formData.append("name", project.name);
+      formData.append("description", project.description);
+
+      if (project.coverImage) {
+        formData.append("coverImage", project.coverImage);
+      }
+
       const response = await fetch(`${this.api_url}/${id}`, {
         method: "PUT",
         headers: this.getRequestHeaders(),
         credentials: "include",
-        body: JSON.stringify(project),
+        body: formData,
       });
+      
       if (!response.ok) {
         throw new Error(`${response.statusText}`);
       }

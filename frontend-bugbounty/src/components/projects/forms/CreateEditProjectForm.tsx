@@ -1,29 +1,30 @@
-import UserService from "@/services/userService";
-import { AddProjectRequest, AddUserRequest } from "@/shared/requestTypes";
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import { AddProjectRequest } from "@/shared/requestTypes";
+import React, { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Project } from "@/shared/types";
+import { ModalName, Project } from "@/shared/types";
 import ProjectService from "@/services/projectService";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 interface Props {
   formRef: React.RefObject<HTMLFormElement>;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   modalType: "create" | "update";
-  project?: Project;
+  project?: Project | null;
+  modalName: ModalName;
 }
 
 const CreateEditProjectForm: React.FC<Props> = ({
   formRef,
-  setShowModal,
   modalType,
   project,
+  modalName,
 }) => {
-  const initialFormData = {
+  const initialFormData: AddProjectRequest = {
     name: "",
     description: "",
     coverImage: null,
   };
+  const { setShowModals } = useContext(AdminPanelContext);
   const [createError, setCreateError] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<AddProjectRequest>(initialFormData);
@@ -84,16 +85,19 @@ const CreateEditProjectForm: React.FC<Props> = ({
     const ps = new ProjectService();
 
     try {
-      console.log(formData);
       if (modalType == "create") await ps.create(formData);
       if (modalType == "update") {
         if (!project?._id) throw new Error("The Project ID is invalid.");
 
-        await ps.update(project._id, formData);
+        const res = await ps.update(project._id, formData);
+        console.log({res});
       }
 
       setFormData(initialFormData);
-      setShowModal(false);
+      setShowModals((prevState) => ({
+        ...prevState,
+        [modalName]: false,
+      }));
       router.refresh();
     } catch (error) {
       setCreateError((error as Error).message);

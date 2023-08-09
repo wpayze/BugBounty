@@ -1,21 +1,31 @@
 "use client";
-import React, { ReactNode } from "react";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
+import { ModalName } from "@/shared/types";
+import React, { ReactNode, useContext } from "react";
 
 interface FormModalProps {
-  showModal: boolean;
-  onCloseModal: () => void;
-  onSaveModal?: () => void;
   title: string;
+  modalName: ModalName;
   children: ReactNode;
+  onSaveModal: () => void;
 }
 
 const FormModal: React.FC<FormModalProps> = ({
-  showModal,
-  onCloseModal,
-  onSaveModal,
   title = "Bug Bounty",
+  modalName,
   children,
+  onSaveModal,
 }) => {
+  const { showModals, setShowModals } = useContext(AdminPanelContext);
+  const showModal = showModals[modalName];
+
+  const onCloseModal = () => {
+    setShowModals((prevState) => ({
+      ...prevState,
+      [modalName]: false,
+    }));
+  }
+
   return (
     <>
       {showModal && <div className="modal-backdrop fade show"></div>}

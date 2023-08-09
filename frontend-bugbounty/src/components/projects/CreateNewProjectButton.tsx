@@ -1,16 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import CreateEditProjectModal from "./modals/CreateEditProjectModal";
+import { ModalName } from "@/shared/types";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 const CreateNewProjectButton: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
+  const { setShowModals } = useContext(AdminPanelContext);
+  const modalName: ModalName = "createProjectModal";
 
   const handleClick = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
+    setShowModals((prevState) => ({
+      ...prevState,
+      [modalName]: true,
+    }));
   };
 
   return (
@@ -22,13 +24,6 @@ const CreateNewProjectButton: React.FC = () => {
       >
         <i className="feather-plus" /> Create New Project
       </button>
-
-      <CreateEditProjectModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        handleCloseModal={handleCloseModal}
-        modalType="create"
-      />
     </>
   );
 };

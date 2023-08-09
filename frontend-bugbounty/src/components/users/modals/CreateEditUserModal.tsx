@@ -1,25 +1,27 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import FormModal from "@/components/FormModal";
 import CreateEditUserForm from "../forms/CreateEditUserForm";
-import { User } from "@/shared/types";
+import { ModalName, ModalType } from "@/shared/types";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 interface Props {
-  handleCloseModal: () => void;
-  showModal: boolean;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  modalType: "create" | "update";
-  user?: User;
+  modalType: ModalType
 }
 
+const modalNameMap: Record<ModalType, ModalName> = {
+  create: "createUserModal",
+  update: "editUserModal",
+};
+
 const CreateEditUserModal: React.FC<Props> = ({
-  handleCloseModal,
-  showModal,
-  setShowModal,
   modalType,
-  user,
 }) => {
+  const { editFormData } = useContext(AdminPanelContext);
+
+  const modalName = modalNameMap[modalType];
   const formRef = useRef<HTMLFormElement>(null);
+  const user = modalType == "update" ? editFormData.user : null; 
 
   const submitForm = () => {
     formRef.current?.dispatchEvent(
@@ -35,16 +37,15 @@ const CreateEditUserModal: React.FC<Props> = ({
   return (
     <>
       <FormModal
-        showModal={showModal}
-        onCloseModal={handleCloseModal}
         title={titles[modalType]}
         onSaveModal={submitForm}
+        modalName={modalName}
       >
         <CreateEditUserForm
           formRef={formRef}
-          setShowModal={setShowModal}
           modalType={modalType}
           user={user}
+          modalName={modalName}
         />
       </FormModal>
     </>

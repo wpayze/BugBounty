@@ -1,21 +1,26 @@
 "use client";
-import React, { useState } from "react";
-import CreateEditUserModal from "./modals/CreateEditUserModal";
-import { User } from "@/shared/types";
+import React, { useContext } from "react";
+import { ModalName, User } from "@/shared/types";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
 interface EditUserButtonProps {
   user: User;
 }
 
 const EditUserButton: React.FC<EditUserButtonProps> = ({ user }) => {
-  const [showModal, setShowModal] = useState(false);
+  const { setShowModals, setEditFormData } = useContext(AdminPanelContext);
+  const modalName: ModalName = "editUserModal";
 
   const handleClick = () => {
-    setShowModal(true);
-  };
+    setEditFormData((prevState) => ({
+      ...prevState,
+      user: user,
+    }));
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+    setShowModals((prevState) => ({
+      ...prevState,
+      [modalName]: true,
+    }));
   };
 
   return (
@@ -23,14 +28,6 @@ const EditUserButton: React.FC<EditUserButtonProps> = ({ user }) => {
       <button type="button" className="btn btn-warning" onClick={handleClick}>
         <i className="feather-edit" />
       </button>
-
-      <CreateEditUserModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        handleCloseModal={handleCloseModal}
-        modalType="update"
-        user={user}
-      />
     </>
   );
 };
