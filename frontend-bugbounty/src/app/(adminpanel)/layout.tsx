@@ -7,6 +7,7 @@ import { User } from "@/shared/types";
 import { initAuthService } from "@/helpers/initServices";
 import CreateEditUserModal from "@/components/users/modals/CreateEditUserModal";
 import CreateEditProjectModal from "@/components/projects/modals/CreateEditProjectModal";
+import CreateBugModal from "@/components/bugs/modals/CreateBugModal";
 
 export default async function RootLayout({
   children,
@@ -91,6 +92,7 @@ export default async function RootLayout({
         <CreateEditUserModal modalType="update" />
         <CreateEditProjectModal modalType="create" />
         <CreateEditProjectModal modalType="update" />
+        <CreateBugModal />
       </div>
     </div>
   );

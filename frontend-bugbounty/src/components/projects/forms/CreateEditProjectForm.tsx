@@ -89,8 +89,7 @@ const CreateEditProjectForm: React.FC<Props> = ({
       if (modalType == "update") {
         if (!project?._id) throw new Error("The Project ID is invalid.");
 
-        const res = await ps.update(project._id, formData);
-        console.log({res});
+        await ps.update(project._id, formData);
       }
 
       setFormData(initialFormData);

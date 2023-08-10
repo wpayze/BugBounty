@@ -1,35 +1,54 @@
 .bug-card {
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 100%;
+}
+
+.bug-card .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bug-card .bug-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .bug-card:hover {
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
+}
+
+.project-tab {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.project-tab:hover {
+  background-color: #bfbfbf!important;
 }
 
 .bug-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .bug-severity {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .bug-border-critical {
-    border-left: 5px solid var(--danger);
+  border-left: 5px solid var(--danger);
 }
 
 .bug-border-high {
-    border-left: 5px solid var(--warning);
+  border-left: 5px solid var(--warning);
 }
 
 .bug-border-medium {
-    border-left: 5px solid var(--info);
+  border-left: 5px solid var(--info);
 }
 
 .bug-border-low {
-    border-left: 5px solid var(--primary);
+  border-left: 5px solid var(--primary);
 }

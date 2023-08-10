@@ -32,6 +32,37 @@ class BugService {
 
     return (await response.json()) as GetBugsResponse[];
   }
+
+  async create(bug: Partial<Bug>): Promise<GetBugsResponse[]> {
+    const formData = new FormData();
+
+    formData.append("title", bug.title || "");
+    formData.append("description", bug.description || "");
+    formData.append("project", bug.project?.toString() || "");
+    formData.append("severity", bug.severity || "");
+    formData.append("asignees", JSON.stringify(bug.assignees));
+
+    if (bug.attachments && bug.attachments.length) {
+      Array.from(bug.attachments).forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append(`attachment${index + 1}`, file);
+        }
+      });
+    }
+
+    const response = await fetch(this.api_url, {
+      method: "POST",
+      credentials: "include",
+      headers: this.getRequestHeaders(),
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.statusText}`);
+    }
+
+    return (await response.json()) as GetBugsResponse[];
+  }
 }
 
 export default BugService;

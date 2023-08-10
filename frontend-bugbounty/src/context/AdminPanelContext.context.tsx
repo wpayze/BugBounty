@@ -23,11 +23,16 @@ const defaultValue: AdminPanelContextType = {
     editUserModal: false,
     createProjectModal: false,
     editProjectModal: false,
+    createBugModal: false,
+    editBugModal: false
   },
   setShowModals: () => {},
   editFormData: {
     user: null,
     project: null,
+    bug: null,
+    bugProject: null,
+    users: null
   },
   setEditFormData: () => {},
 };

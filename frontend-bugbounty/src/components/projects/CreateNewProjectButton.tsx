@@ -1,6 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
-import CreateEditProjectModal from "./modals/CreateEditProjectModal";
+import React, { useContext } from "react";
 import { ModalName } from "@/shared/types";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 
@@ -16,15 +15,13 @@ const CreateNewProjectButton: React.FC = () => {
   };
 
   return (
-    <>
-      <button
-        type="button"
-        className="btn btn-lg btn-primary waves-effect waves-light"
-        onClick={handleClick}
-      >
-        <i className="feather-plus" /> Create New Project
-      </button>
-    </>
+    <button
+      type="button"
+      className="btn btn-lg btn-primary waves-effect waves-light"
+      onClick={handleClick}
+    >
+      <i className="feather-plus" /> Create New Project
+    </button>
   );
 };
 

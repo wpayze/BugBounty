@@ -20,7 +20,7 @@ export interface Bug {
   creator: string | User;
   project: string | Project;
   assignees: Array<string | User>;
-  attachments: Array<string | Attachment>;
+  attachments: Array<string | Attachment | File>;
 }
 
 export interface Company {
@@ -74,8 +74,11 @@ export interface Project {
 }
 
 export type ModalType = "create" | "update";
-export type ModalName = "createUserModal" | "editUserModal" | "createProjectModal" | "editProjectModal";
+export type ModalName = "createUserModal" | "editUserModal" | "createProjectModal" | "editProjectModal" | "createBugModal" | "editBugModal";
 export type EditFormData = {
   user: User | null;
   project: Project | null;
+  bug: Bug | null;
+  bugProject: Project | null;
+  users: User[] | null;
 };
