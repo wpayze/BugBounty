@@ -1,4 +1,4 @@
-import { Bug, Project, User } from "./types";
+import { Bug, ChangeEvent, Project, User, Comment } from "./types";
 
 export interface RegisterResponse {
   message: string;
@@ -16,3 +16,8 @@ export interface GetBugsResponse {
   bugCount: number;
   bugs: Bug[];
 };
+
+export interface getBugByIdResponse extends Bug {
+  comments: Comment[];
+  events: ChangeEvent[];
+}

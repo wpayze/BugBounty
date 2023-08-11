@@ -26,7 +26,7 @@
 }
 
 .project-tab:hover {
-  background-color: #bfbfbf!important;
+  background-color: #bfbfbf !important;
 }
 
 .bug-status {
@@ -60,4 +60,10 @@
 
 .bug-collapse:hover {
   background-color: #d9d9d9;
+}
+
+.tab-content {
+  height: 335px;
+  overflow: auto;
+  overflow-x: hidden;
 }

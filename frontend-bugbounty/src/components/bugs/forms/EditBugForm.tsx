@@ -7,41 +7,57 @@ import React, {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Bug, ModalName } from "@/shared/types";
+import { Bug, ChangeEvent as Evt, Comment } from "@/shared/types";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 import BugService from "@/services/bugService";
+import { getBugByIdResponse } from "@/shared/responseTypes";
+import EditBugTabs from "./EditBugTabs";
 
 interface Props {
   formRef: React.RefObject<HTMLFormElement>;
-  modalName: ModalName;
 }
 
-const EditBugForm: React.FC<Props> = ({ formRef, modalName }) => {
+const defaultBug: getBugByIdResponse = {
+  _id: "",
+  _v: 0,
+  customId: 0,
+  title: "",
+  description: "",
+  status: "open",
+  severity: "low",
+  creator: "",
+  project: "",
+  assignees: [],
+  attachments: [],
+  comments: [],
+  events: [],
+};
+
+const EditBugForm: React.FC<Props> = ({ formRef }) => {
   const { setShowModals, editFormData } = useContext(AdminPanelContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { bug, users } = editFormData;
+  const bs = new BugService();
 
-  const defaultBug: Bug = {
-    _id: "",
-    _v: 0,
-    customId: 0,
-    title: "",
-    description: "",
-    status: "open",
-    severity: "low",
-    creator: "",
-    project: "",
-    assignees: [],
-    attachments: [],
-  };
+  const [formData, setFormData] = useState<Bug>(defaultBug);
+  const [comments, setComments] = useState<Comment[]>();
+  const [events, setEvents] = useState<Evt[]>();
 
   useEffect(() => {
-    if (bug) setFormData(bug);
+    setIsLoading(true);
+    if (bug) fetchBug(bug?._id);
   }, [bug]);
 
-  const [formData, setFormData] = useState<Bug>(bug || defaultBug);
+  const fetchBug = async (bugId: string) => {
+    const bug: getBugByIdResponse = await bs.getById(bugId);
 
-  if (!bug) return;
+    setFormData(bug);
+    setComments(bug.comments);
+    setEvents(bug.events);
+
+    setIsLoading(false);
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -57,44 +73,75 @@ const EditBugForm: React.FC<Props> = ({ formRef, modalName }) => {
 
   return (
     <form onSubmit={handleSubmit} ref={formRef}>
-      <div className="row">
-        <div className="col-md-6">
-          <div className="form-group">
-            <label htmlFor="title">Title:</label>
-            <input
-              type="text"
-              className={`form-control ${errors.title ? "is-invalid" : ""}`}
-              required
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-            />
-            {errors.title && (
-              <div className="invalid-feedback">{errors.title}</div>
-            )}
+      {isLoading ? (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border text-primary" role="status" />
+        </div>
+      ) : (
+        <div className="row">
+          <div className="col-md-6">
+            <div className="form-group">
+              <label htmlFor="title">Title:</label>
+              <input
+                type="text"
+                className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                required
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+              />
+              {errors.title && (
+                <div className="invalid-feedback">{errors.title}</div>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="severity">Severity:</label>
+              <select
+                className={`form-control ${
+                  errors.severity ? "is-invalid" : ""
+                }`}
+                required
+                name="severity"
+                value={formData.severity}
+                onChange={handleChange}
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+              {errors.severity && (
+                <div className="invalid-feedback">{errors.severity}</div>
+              )}
+            </div>
+            <div className="form-group">
+              <label htmlFor="description">Description:</label>
+              <textarea
+                className={`form-control ${
+                  errors.description ? "is-invalid" : ""
+                }`}
+                required
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                style={{
+                  height: "200px",
+                  resize: "none",
+                  overflowY: "scroll",
+                }}
+              />
+              {errors.description && (
+                <div className="invalid-feedback">{errors.description}</div>
+              )}
+            </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="description">Description:</label>
-            <textarea
-              className={`form-control ${
-                errors.description ? "is-invalid" : ""
-              }`}
-              required
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              style={{
-                height: "200px",
-                resize: "none",
-                overflowY: "scroll",
-              }}
-            />
-            {errors.description && (
-              <div className="invalid-feedback">{errors.description}</div>
+          <div className="col-md-6">
+            {events && comments && (
+              <EditBugTabs events={events} comments={comments} />
             )}
           </div>
         </div>
-      </div>
+      )}
     </form>
   );
 };

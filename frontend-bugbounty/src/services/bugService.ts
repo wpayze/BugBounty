@@ -1,4 +1,4 @@
-import { GetBugsResponse } from "@/shared/responseTypes";
+import { GetBugsResponse, getBugByIdResponse } from "@/shared/responseTypes";
 import { Bug, Project } from "@/shared/types";
 
 class BugService {
@@ -31,6 +31,19 @@ class BugService {
     }
 
     return (await response.json()) as GetBugsResponse[];
+  }
+
+  async getById(id: string): Promise<getBugByIdResponse> {
+    const response = await fetch(this.api_url + "/" + id, {
+      credentials: "include",
+      headers: this.getRequestHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.statusText}`);
+    }
+
+    return (await response.json()) as getBugByIdResponse;
   }
 
   async create(bug: Partial<Bug>): Promise<GetBugsResponse[]> {

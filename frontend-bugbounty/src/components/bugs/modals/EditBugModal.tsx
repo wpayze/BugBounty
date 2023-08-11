@@ -24,7 +24,7 @@ const EditBugModal: React.FC = () => {
         title={`Bug ${bug?.customId}`}
         onSaveModal={submitForm}
       >
-        <EditBugForm formRef={formRef} modalName={modalName} />
+        <EditBugForm formRef={formRef} />
       </FormModal>
     </>
   );
