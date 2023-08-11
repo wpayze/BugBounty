@@ -11,6 +11,8 @@ export interface LoginResponse {
 }
 
 export interface GetBugsResponse {
-  project: Project;
+  _id: string;
+  name: string;
+  bugCount: number;
   bugs: Bug[];
 };

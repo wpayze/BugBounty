@@ -14,7 +14,7 @@ const EditUserButton: React.FC<EditUserButtonProps> = ({ user }) => {
   const handleClick = () => {
     setEditFormData((prevState) => ({
       ...prevState,
-      user: user,
+      user,
     }));
 
     setShowModals((prevState) => ({

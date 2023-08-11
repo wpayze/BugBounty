@@ -8,13 +8,13 @@ import ProjectBugsTab from "@/components/bugs/ProjectBugsTab";
 import "./bugStyles.css";
 
 const Bugs: React.FC = async () => {
-  let bugs: GetBugsResponse[] = [];
+  let projectWithBugs: GetBugsResponse[] = [];
   let users: User[] = [];
 
   try {
     const bs = initBugService();
     const us = initUserService();
-    bugs = await bs.getAll();
+    projectWithBugs = await bs.getAll();
     users = await us.getAll();
   } catch (error) {
     console.error(error);
@@ -39,13 +39,15 @@ const Bugs: React.FC = async () => {
                 </div>
               </div>
               <hr />
-              {bugs.map((item, index) => (
-                <ProjectBugsTab
-                  key={index}
-                  project={item.project}
-                  bugs={item.bugs}
-                  users={users}
-                />
+              {projectWithBugs.map((project, index) => (
+                <div className="custom-accordion">
+                  <ProjectBugsTab
+                    key={index}
+                    project={project}
+                    bugs={project.bugs}
+                    users={users}
+                  />
+                </div>
               ))}
             </div>
           </div>

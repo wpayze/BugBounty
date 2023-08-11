@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const Project = require('../models/project');
 const Bug = require('../models/bug');
+const Comment = require('../models/comment');
 const User = require('../models/user');
 const ChangeEvent = require('../models/changeEvent');
 const Attachment = require('../models/attachment');
@@ -26,26 +28,43 @@ exports.getAllBugs = async (req, res, next) => {
 
     const companyUsers = await User.find({ company: companyId });
     const userIds = companyUsers.map((user) => user._id);
-    const bugs = await Bug.find({ creator: { $in: userIds } }).populate(
-      'project'
-    );
 
-    const groupedBugs = bugs.reduce((acc, bug) => {
-      const projectId = bug.project._id.toString();
-      if (!acc[projectId]) {
-        acc[projectId] = {
-          project: bug.project,
-          bugs: [],
-        };
-      }
+    const projectsWithBugCounts = await Project.aggregate([
+      {
+        $match: { creator: { $in: userIds } },
+      },
+      {
+        $lookup: {
+          from: 'bugs',
+          localField: '_id',
+          foreignField: 'project',
+          as: 'bugs',
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          bugCount: { $size: '$bugs' },
+          bugs: {
+            $map: {
+              input: '$bugs',
+              as: 'bug',
+              in: {
+                _id: '$$bug._id',
+                customId: '$$bug.customId',
+                title: '$$bug.title',
+                status: '$$bug.status',
+                severity: '$$bug.severity',
+                assignees: '$$bug.assignees',
+                attachments: { $size: '$$bug.attachments' },
+              },
+            },
+          },
+        },
+      },
+    ]);
 
-      acc[projectId].bugs.push(bug);
-      return acc;
-    }, {});
-
-    const result = Object.values(groupedBugs);
-
-    res.status(200).json(result);
+    res.status(200).json(projectsWithBugCounts);
   } catch (err) {
     next(err);
   }
@@ -56,7 +75,7 @@ exports.getBugById = async (req, res) => {
   const { companyId } = req.user;
 
   try {
-    const bug = await Bug.findById(bugId).populate('creator');
+    const bug = await Bug.findById(bugId).populate('creator attachments');
     if (!bug) {
       return res.status(404).json({ message: 'Bug not found' });
     }
@@ -67,7 +86,16 @@ exports.getBugById = async (req, res) => {
       });
     }
 
-    res.status(200).json(bug);
+    const comments = await Comment.find({ bug: bugId }).populate('creator');
+    const events = await ChangeEvent.find({ bug: bugId }).populate('user');
+
+    const result = {
+      ...bug._doc,
+      comments,
+      events,
+    };
+
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error getting bug:', error);
     res

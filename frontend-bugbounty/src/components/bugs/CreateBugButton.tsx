@@ -1,10 +1,11 @@
 "use client";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
+import { GetBugsResponse } from "@/shared/responseTypes";
 import { ModalName, Project, User } from "@/shared/types";
 import React, { useContext, useEffect } from "react";
 
 interface Props {
-  project: Project;
+  project: GetBugsResponse;
   users: User[];
 }
 
@@ -19,7 +20,8 @@ const CreateBugButton: React.FC<Props> = ({ project, users}) => {
     }));
   }, []);
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    
     setShowModals((prevState) => ({
       ...prevState,
       [modalName]: true,
@@ -29,6 +31,7 @@ const CreateBugButton: React.FC<Props> = ({ project, users}) => {
       ...prevState,
       bugProject: project,
     }));
+    event.stopPropagation();
   };
 
   return (

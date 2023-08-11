@@ -1,3 +1,5 @@
+import { GetBugsResponse } from "./responseTypes";
+
 export interface User {
   _id: string;
   _v: number;
@@ -20,7 +22,7 @@ export interface Bug {
   creator: string | User;
   project: string | Project;
   assignees: Array<string | User>;
-  attachments: Array<string | Attachment | File>;
+  attachments: Array<string | Attachment | File> | number;
 }
 
 export interface Company {
@@ -79,6 +81,6 @@ export type EditFormData = {
   user: User | null;
   project: Project | null;
   bug: Bug | null;
-  bugProject: Project | null;
+  bugProject: GetBugsResponse | null;
   users: User[] | null;
 };

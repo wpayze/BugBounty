@@ -42,12 +42,11 @@ class BugService {
     formData.append("severity", bug.severity || "");
     formData.append("asignees", JSON.stringify(bug.assignees));
 
-    if (bug.attachments && bug.attachments.length) {
-      Array.from(bug.attachments).forEach((file, index) => {
-        if (file instanceof File) {
-          formData.append(`attachment${index + 1}`, file);
-        }
-      });
+    if (bug.attachments instanceof FileList) {
+      for (let index = 0; index < bug.attachments.length; index++) {
+        const file = bug.attachments[index];
+        formData.append(`attachment${index + 1}`, file);
+      }
     }
 
     const response = await fetch(this.api_url, {

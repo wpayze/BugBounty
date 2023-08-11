@@ -20,7 +20,7 @@ const SideMenu: React.FC = () => {
     { path: "/dashboard", icon: "feather-home", label: "Dashboard" },
     { path: "/users", icon: "feather-users", label: "Users" },
     { path: "/projects", icon: "feather-folder", label: "Projects" },
-    { path: "/bugs", icon: "feather-alert-octagon", label: "Bugs" },
+    { path: "/bugs", icon: "fas fa-bug", label: "Bugs" },
     { path: "/profile", icon: "feather-sliders", label: "Profile" },
     {
       path: "#",

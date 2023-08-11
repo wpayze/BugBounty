@@ -1,6 +1,7 @@
 "use client";
-import { Bug } from "@/shared/types";
-import React from "react";
+import { AdminPanelContext } from "@/context/AdminPanelContext.context";
+import { Bug, ModalName } from "@/shared/types";
+import React, { useContext } from "react";
 
 interface BugsGridProps {
   bugs: Bug[];
@@ -20,17 +21,40 @@ const bugSeverity = {
 };
 
 const BugsGrid: React.FC<BugsGridProps> = ({ bugs }) => {
+  const { setShowModals, setEditFormData } = useContext(AdminPanelContext);
+  const modalName: ModalName = "editBugModal";
+
+  const handleClick = (bug: Bug) => {
+    setEditFormData((prevState) => ({
+      ...prevState,
+      bug,
+    }));
+
+    setShowModals((prevState) => ({
+      ...prevState,
+      [modalName]: true,
+    }));
+  };
+
   return (
     <div className="row py-2">
+      {bugs.length === 0 && (
+        <div className="col-sm-12">
+          <p>No bugs to show.</p>
+        </div>
+      )}
       {bugs.map((bug, index) => (
         <div key={index} className="col-sm-6 col-md-4 col-xl-3 mb-2">
           <div
             className={`card position-relative bug-border-${bug.severity} bug-card`}
+            onClick={() => handleClick(bug)}
           >
             <div className="card-body">
               <div>
                 <div className="bug-title">
-                  <h5 className="card-title m-0">{bug.title}</h5>
+                  <p className="card-title m-0">
+                  <i className="fas fa-bug"></i> <strong>{bug.customId}</strong> {bug.title}
+                  </p>
                   <span
                     className={`bug-status badge badge-pill badge-${
                       bugStatus[bug.status]
@@ -39,10 +63,12 @@ const BugsGrid: React.FC<BugsGridProps> = ({ bugs }) => {
                     {bug.status}
                   </span>
                 </div>
-                <p className="mt-2">
-                  {bug.description.length > 150
-                    ? bug.description.substring(0, 150) + "..."
-                    : bug.description}
+                <br />
+                <p>
+                  {bug.assignees.length > 0 &&
+                  typeof bug.assignees[0] !== "string"
+                    ? bug.assignees[0].name
+                    : "Unassigned"}
                 </p>
                 <p>
                   {typeof bug.assignees[0] === "string"
@@ -59,7 +85,7 @@ const BugsGrid: React.FC<BugsGridProps> = ({ bugs }) => {
                   {bug.severity}
                 </span>
                 <span className="badge badge-soft-dark">
-                  Attachments: {bug.attachments.length}
+                  Attachments: {typeof bug.attachments === 'number' && bug.attachments}
                 </span>
               </div>
             </div>
