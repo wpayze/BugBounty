@@ -21,3 +21,8 @@ export interface getBugByIdResponse extends Bug {
   comments: Comment[];
   events: ChangeEvent[];
 }
+
+export interface getCommentsAndEventsResponse {
+  comments: Comment[];
+  events: ChangeEvent[];
+}

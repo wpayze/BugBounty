@@ -1,5 +1,7 @@
 const Comment = require('../models/comment');
+const ChangeEvent = require('../models/changeEvent');
 const Bug = require('../models/bug');
+const User = require('../models/user');
 
 async function validateBugOwnership(bugId, companyId) {
   const bug = await Bug.findById(bugId).populate('creator');
@@ -14,17 +16,49 @@ async function validateBugOwnership(bugId, companyId) {
   return bug;
 }
 
+exports.getCommentAndEventsByBugId = async (req, res) => {
+  const { bugId } = req.params;
+  const { companyId } = req.user;
+
+  try {
+    await validateBugOwnership(bugId, companyId);
+    const comments = await Comment.find({ bug: bugId }).populate(
+      'creator',
+      'name email'
+    ).sort({ _id: -1 });
+    const events = await ChangeEvent.find({ bug: bugId })
+      .populate('user')
+      .sort({ _id: -1 });
+
+    const result = {
+      comments,
+      events,
+    };
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error getting comments:', error);
+    res
+      .status(500)
+      .json({ message: 'An error occurred while getting the comments' });
+  }
+};
+
 exports.getCommentByBugId = async (req, res) => {
   const { bugId } = req.params;
   const { companyId } = req.user;
 
   try {
     await validateBugOwnership(bugId, companyId);
-    const comments = await Comment.find({ bug: bugId }).populate('creator', 'name email');
+    const comments = await Comment.find({ bug: bugId }).populate(
+      'creator',
+      'name email'
+    ).sort({ _id: -1 });
     res.status(200).json(comments);
   } catch (error) {
     console.error('Error getting comments:', error);
-    res.status(500).json({ message: 'An error occurred while getting the comments' });
+    res
+      .status(500)
+      .json({ message: 'An error occurred while getting the comments' });
   }
 };
 
@@ -35,11 +69,20 @@ exports.addComment = async (req, res) => {
 
   try {
     await validateBugOwnership(bugId, companyId);
-
     const newComment = await Comment.create({
       content,
       creator: userId,
       bug: bugId,
+      timestamp: new Date(),
+    });
+
+    const user = await User.findById(userId);
+    ChangeEvent.create({
+      type: 'comment',
+      user: userId,
+      bug: bugId,
+      timestamp: new Date(),
+      details: `${user.name} (${user.email}) commented`,
     });
 
     res.status(201).json(newComment);

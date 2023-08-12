@@ -18,6 +18,7 @@ router.put('/:bugId', authenticateJWT, bugController.updateBugById);
 
 // Comments
 router.get('/:bugId/comments', authenticateJWT, commentController.getCommentByBugId);
+router.get('/:bugId/comments/events', authenticateJWT, commentController.getCommentAndEventsByBugId);
 router.post('/:bugId/comments', authenticateJWT, commentController.addComment);
 router.put('/:bugId/comments/:commentId', authenticateJWT, commentController.updateComment);
 router.delete('/:bugId/comments/:commentId', authenticateJWT, commentController.deleteComment);

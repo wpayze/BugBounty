@@ -9,6 +9,8 @@ export interface User {
   company: string | Company;
   role: "admin" | "dev" | "project manager" | "tester";
   profileImage: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Bug {
@@ -23,6 +25,8 @@ export interface Bug {
   project: string | Project;
   assignees: Array<string | User>;
   attachments: Array<string | Attachment | File> | number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Company {
@@ -35,6 +39,8 @@ export interface Company {
   location: string;
   founded: Date;
   industry: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Comment {
@@ -44,6 +50,8 @@ export interface Comment {
   creator: string | User;
   bug: string | Bug;
   attachments: Array<Attachment>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ChangeEvent {
@@ -62,6 +70,8 @@ export interface Attachment {
   url: string;
   name: string;
   type: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Project {
@@ -73,6 +83,8 @@ export interface Project {
   coverImage: string;
   attachments: Array<string | Attachment>;
   assignees: Array<string | User>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type ModalType = "create" | "update";

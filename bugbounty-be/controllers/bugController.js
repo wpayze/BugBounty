@@ -86,8 +86,8 @@ exports.getBugById = async (req, res) => {
       });
     }
 
-    const comments = await Comment.find({ bug: bugId }).populate('creator');
-    const events = await ChangeEvent.find({ bug: bugId }).populate('user');
+    const comments = await Comment.find({ bug: bugId }).populate('creator').sort({ _id: -1 });
+    const events = await ChangeEvent.find({ bug: bugId }).populate('user').sort({ _id: -1 });
 
     const result = {
       ...bug._doc,

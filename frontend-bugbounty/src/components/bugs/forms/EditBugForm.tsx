@@ -31,10 +31,12 @@ const defaultBug: getBugByIdResponse = {
   attachments: [],
   comments: [],
   events: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 const EditBugForm: React.FC<Props> = ({ formRef }) => {
-  const { setShowModals, editFormData } = useContext(AdminPanelContext);
+  const { editFormData } = useContext(AdminPanelContext);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { bug, users } = editFormData;
@@ -79,7 +81,7 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
         </div>
       ) : (
         <div className="row">
-          <div className="col-md-6">
+          <div className="col-md-12 col-lg-6">
             <div className="form-group">
               <label htmlFor="title">Title:</label>
               <input
@@ -95,11 +97,23 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
               )}
             </div>
             <div className="form-group">
+              <label htmlFor="status">Status:</label>
+              <select
+                className="form-control"
+                required
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option value="open">Open</option>
+                <option value="in progress">In Progress</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div className="form-group">
               <label htmlFor="severity">Severity:</label>
               <select
-                className={`form-control ${
-                  errors.severity ? "is-invalid" : ""
-                }`}
+                className="form-control"
                 required
                 name="severity"
                 value={formData.severity}
@@ -110,9 +124,6 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
                 <option value="high">High</option>
                 <option value="critical">Critical</option>
               </select>
-              {errors.severity && (
-                <div className="invalid-feedback">{errors.severity}</div>
-              )}
             </div>
             <div className="form-group">
               <label htmlFor="description">Description:</label>
@@ -135,9 +146,13 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
               )}
             </div>
           </div>
-          <div className="col-md-6">
-            {events && comments && (
-              <EditBugTabs events={events} comments={comments} />
+          <div className="col-md-12 col-lg-6">
+            {events && comments && bug?._id && (
+              <EditBugTabs
+                events={events}
+                comments={comments}
+                bugId={bug._id}
+              />
             )}
           </div>
         </div>

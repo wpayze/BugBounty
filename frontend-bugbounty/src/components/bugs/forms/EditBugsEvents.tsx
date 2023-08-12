@@ -26,7 +26,6 @@ const colors = {
 };
 
 const EditBugEvents: React.FC<Props> = ({ events }) => {
-  console.log(events);
   return (
     <ul className="list-group">
       {events.map((evt, idx) => (
