@@ -53,7 +53,7 @@ const CreateBugForm: React.FC<Props> = ({ formRef, modalName }) => {
       newErrors.description = "Description is required";
     }
 
-    if (formData.attachments) {
+    if (formData.attachments && Array.isArray(formData.attachments)) {
       if (formData.attachments.length > 3) {
         newErrors.attachments = "You can only upload a maximum of 3 files";
       } else {

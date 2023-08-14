@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import EditBugAttachments from "./EditBugAttachments";
 import EditBugComments from "./EditBugComments";
 import EditBugEvents from "./EditBugsEvents";
-import { ChangeEvent, Comment } from "@/shared/types";
+import { Attachment, Bug, ChangeEvent, Comment, User } from "@/shared/types";
 import CommentService from "@/services/commentService";
 import { getCommentsAndEventsResponse } from "@/shared/responseTypes";
 import EditBugAssignees from "./EditBugAssignees";
@@ -10,19 +10,38 @@ import EditBugAssignees from "./EditBugAssignees";
 interface Props {
   comments: Comment[];
   events: ChangeEvent[];
-  bugId: string;
+  bug: Bug;
+  users: User[];
+  setFormData: React.Dispatch<React.SetStateAction<Bug>>;
 }
 
-const EditBugTabs: React.FC<Props> = ({ comments, events, bugId }) => {
+const EditBugTabs: React.FC<Props> = ({ comments, events, bug, users, setFormData }) => {
+  const cs: CommentService = new CommentService("", bug._id);
   const [selectedTab, setSelectedTab] = useState("attachments");
-  const cs: CommentService = new CommentService("", bugId);
-
   const [comms, setComms] = useState<Comment[]>(comments);
   const [evts, setEvts] = useState<ChangeEvent[]>(events);
 
   const addComment = async (commentText: string) => {
-    const cs: CommentService = new CommentService("", bugId);
     await cs.create(commentText);
+    updateCommentsAndEvents();
+  };
+
+  const updateAssignees = async (assignees: User[]) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      assignees,
+    }));
+  };
+
+  const updateAttachments = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: files,
+    }));
+  };
+
+  const updateCommentsAndEvents = async () => {
     const commentsAndEvents: getCommentsAndEventsResponse =
       await cs.getCommentsAndEvents();
 
@@ -31,13 +50,13 @@ const EditBugTabs: React.FC<Props> = ({ comments, events, bugId }) => {
   };
 
   const getContent = () => {
-    if (!bugId) return <div>There was an issue.</div>;
+    if (!bug._id) return <div>There was an issue.</div>;
 
     switch (selectedTab) {
       case "assignees":
-        return <EditBugAssignees />;
+        return <EditBugAssignees assignees={bug.assignees as User[]} users={users} onUpdateAssignees={updateAssignees}/>;
       case "attachments":
-        return <EditBugAttachments />;
+        return <EditBugAttachments attachments={bug.attachments as Attachment[]} onUpdateAttachments={updateAttachments}/>;
       case "comments":
         return <EditBugComments comments={comms} addComment={addComment} />;
       case "events":

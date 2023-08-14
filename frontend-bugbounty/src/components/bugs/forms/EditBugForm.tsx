@@ -6,12 +6,12 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
-import { Bug, ChangeEvent as Evt, Comment } from "@/shared/types";
+import { Bug, ChangeEvent as Evt, Comment, User } from "@/shared/types";
 import { AdminPanelContext } from "@/context/AdminPanelContext.context";
 import BugService from "@/services/bugService";
 import { getBugByIdResponse } from "@/shared/responseTypes";
 import EditBugTabs from "./EditBugTabs";
+import UserService from "@/services/userService";
 
 interface Props {
   formRef: React.RefObject<HTMLFormElement>;
@@ -36,11 +36,14 @@ const defaultBug: getBugByIdResponse = {
 };
 
 const EditBugForm: React.FC<Props> = ({ formRef }) => {
-  const { editFormData } = useContext(AdminPanelContext);
+  const { editFormData, setEditFormData } = useContext(AdminPanelContext);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [createError, setCreateError] = useState("");
   const { bug, users } = editFormData;
+
   const bs = new BugService();
+  const us = new UserService();
 
   const [formData, setFormData] = useState<Bug>(defaultBug);
   const [comments, setComments] = useState<Comment[]>();
@@ -49,7 +52,27 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
   useEffect(() => {
     setIsLoading(true);
     if (bug) fetchBug(bug?._id);
+    fetchUsers();
   }, [bug]);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.title?.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    if (formData.title && formData.title.trim().length > 32) {
+      newErrors.title = "Title must not exceed 32 characters";
+    }
+
+    if (!formData.description?.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const fetchBug = async (bugId: string) => {
     const bug: getBugByIdResponse = await bs.getById(bugId);
@@ -59,6 +82,15 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
     setEvents(bug.events);
 
     setIsLoading(false);
+  };
+
+  const fetchUsers = async () => {
+    const users: User[] = await us.getAll();
+
+    setEditFormData((prevState) => ({
+      ...prevState,
+      users,
+    }));
   };
 
   const handleChange = (
@@ -71,7 +103,12 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {};
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    setCreateError("");
+    e.preventDefault();
+    if (!validateForm()) return;
+    console.log({formData});
+  };
 
   return (
     <form onSubmit={handleSubmit} ref={formRef}>
@@ -147,11 +184,13 @@ const EditBugForm: React.FC<Props> = ({ formRef }) => {
             </div>
           </div>
           <div className="col-md-12 col-lg-6">
-            {events && comments && bug?._id && (
+            {events && comments && bug?._id && users && (
               <EditBugTabs
                 events={events}
                 comments={comments}
-                bugId={bug._id}
+                bug={bug}
+                users={users}
+                setFormData={setFormData}
               />
             )}
           </div>
